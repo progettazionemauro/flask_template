@@ -76,3 +76,23 @@ Enter your GitHub credentials:
 
 When prompted, enter your GitHub username and password or personal access token to authenticate and push the changes.
 After completing these steps, your VSC project will be pushed to the GitHub repository. You can visit your repository on GitHub to verify that the files have been successfully uploaded.
+
+To remember:
+The command git branch -M main is used to rename the default branch of a Git repository from the previous name (e.g., "master") to a new name (e.g., "main"). This command is typically used to align with more inclusive and neutral terminology.
+
+Here's what each part of the command does:
+
+git branch: This is the command to manage branches in Git.
+-M: This is an option that specifies the mode for renaming the branch.
+main: This is the new name for the branch. In this case, "main" is used as an example, but you can replace it with any desired branch name.
+By executing git branch -M main, you are effectively renaming the default branch of your Git repository to "main". This command ensures that the new branch name is updated in both your local repository and the remote repository.
+
+The command git push -u origin main is used to push the local branch "main" to the remote repository named "origin" and set it as the upstream branch.
+
+Here's what each part of the command does:
+
+git push: This is the command to send your local commits to a remote repository.
+-u: This is an option that sets the upstream branch for the local branch being pushed. It tells Git to associate the local branch with the remote branch, enabling you to use git pull and git push without specifying the branch name in the future.
+origin: This is the remote repository's name. It is typically set as "origin" by default when you clone a repository.
+main: This is the branch you want to push to the remote repository. In this case, it is pushing the local branch "main" to the remote branch "main".
+By executing git push -u origin main, you are pushing the local branch "main" to the remote repository and setting it as the upstream branch. This allows you to use git pull and git push without specifying the branch name in subsequent commands.

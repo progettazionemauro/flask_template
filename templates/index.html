@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <title>Web Calculator</title>
@@ -8,6 +9,8 @@
     
     <button onclick="runFunction1()">Function 1</button>
     <button onclick="runFunction2()">Function 2</button>
+
+    <button onclick="createButton()">Create Button</button>
 
     <script>
         function runFunction1() {
@@ -23,15 +26,18 @@
                 .then(result => alert('Function 2 Result: ' + result))
                 .catch(error => console.error(error));
         }
-    </script>
-    This code defines two JavaScript functions: runFunction1() and runFunction2(). Let's go through each function separately:
 
-    runFunction1():
-    
-   {% comment %}  This function uses the fetch() function to send a GET request to the URL '/function1'.
-    The fetch() function returns a Promise that resolves to the response of the GET request.
-    The first .then() method is chained to the Promise and processes the response by calling response.text() to extract the response body as text.
-    The second .then() method is chained to the previous one and receives the extracted response text as the result parameter. It displays an alert dialog with the message "Function Altra Result: " followed by the result.
-    The .catch() method is used to handle any errors that occur during the fetching process. It logs the error to the console using console.error(error). {% endcomment %}
+        function createButton() {
+            var newButton = document.createElement('button');
+            newButton.textContent = 'New Button';
+            newButton.onclick = function() {
+                // Call the function from function.py when the new button is clicked
+                var result = function1(); // Replace function1 with the appropriate function name
+                alert('New Button Result: ' + result);
+            };
+            document.body.appendChild(newButton);
+        }
+    </script>
 </body>
 </html>
+
