@@ -85,11 +85,25 @@ function saveSelectedText(text) {
 function createButton() {
     var newButton = document.createElement('button');
     newButton.textContent = 'New Button';
-    newButton.onclick = function() {
-        // Call the function from function.py when the new button is clicked
-        var result = function1(); // Replace function1 with the appropriate function name
-        alert('New Button Result: ' + result);
+    
+    var deleteButton = document.createElement('button');
+    deleteButton.textContent = 'Delete';
+    deleteButton.onclick = function() {
+        // Logic to delete the newButton
+        document.body.removeChild(newButton);
+        document.body.removeChild(deleteButton);
+        document.body.removeChild(updateButton);
     };
+    
+    var updateButton = document.createElement('button');
+    updateButton.textContent = 'Update';
+    updateButton.onclick = function() {
+        // Logic to update the newButton
+        // Replace the code inside this function with your update logic
+        alert('Update button clicked!');
+    };
+    
     document.body.appendChild(newButton);
+    document.body.appendChild(deleteButton);
+    document.body.appendChild(updateButton);
 }
-
