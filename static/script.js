@@ -83,27 +83,30 @@ function saveSelectedText(text) {
 // These two functions work together to capture the selected text, 
 // send it to the server using an AJAX request, and dynamically create a new button. When the new button is clicked, it executes a function from function.py and displays the result in an alert.
 function createButton() {
-    var newButton = document.createElement('button');
-    newButton.textContent = 'New Button';
-    
-    var deleteButton = document.createElement('button');
-    deleteButton.textContent = 'Delete';
-    deleteButton.onclick = function() {
-        // Logic to delete the newButton
-        document.body.removeChild(newButton);
-        document.body.removeChild(deleteButton);
-        document.body.removeChild(updateButton);
-    };
-    
-    var updateButton = document.createElement('button');
-    updateButton.textContent = 'Update';
-    updateButton.onclick = function() {
-        // Logic to update the newButton
-        // Replace the code inside this function with your update logic
-        alert('Update button clicked!');
-    };
-    
-    document.body.appendChild(newButton);
-    document.body.appendChild(deleteButton);
-    document.body.appendChild(updateButton);
+    var buttonText = prompt('Enter the text for the new button:');
+    if (buttonText) {
+        var newButton = document.createElement('button');
+        newButton.textContent = buttonText;
+
+        var deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.onclick = function() {
+            // Logic to delete the newButton
+            document.body.removeChild(newButton);
+            document.body.removeChild(deleteButton);
+            document.body.removeChild(updateButton);
+        };
+
+        var updateButton = document.createElement('button');
+        updateButton.textContent = 'Update';
+        updateButton.onclick = function() {
+            // Logic to update the newButton
+            // Replace the code inside this function with your update logic
+            alert('Update button clicked!');
+        };
+
+        document.body.appendChild(newButton);
+        document.body.appendChild(deleteButton);
+        document.body.appendChild(updateButton);
+    }
 }
