@@ -2,19 +2,59 @@
 <html>
 <head>
     <title>Web Calculator</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        
+        .button-container {
+            margin-bottom: 10px;
+        }
+        
+        .button-container label {
+            margin-right: 10px;
+        }
+        
+        .button-container input[type="text"] {
+            font-size: 14px;
+            border-radius: 4px;
+        }
+        
+        button {
+            margin-bottom: 10px;
+            font-size: 16px;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Web Calculator</h1>
-    
-    <button onclick="runFunction1()">Function 1</button>
-    <button onclick="runFunction2()">Function 2</button>
-    
-    <div>
-        <label for="buttonText">Button Text:</label>
-        <input type="text" id="buttonText">
-        <button onclick="createButton()">Create Button</button>
+    <div class="container">
+        <h1>Web Calculator</h1>
+        
+        <div class="button-container">
+            <button onclick="runFunction1()" class="btn btn-primary">Function 1</button>
+            <button onclick="runFunction2()" class="btn btn-primary">Function 2</button>
+        </div>
+        
+        <div class="button-container">
+            <div class="input-group">
+                <label for="buttonText" class="input-group-prepend">Button Text:</label>
+                <input type="text" id="buttonText" class="form-control">
+                <div class="input-group-append">
+                    <button onclick="createButton()" class="btn btn-success">Create Button</button>
+                </div>
+            </div>
+        </div>
     </div>
-
+    
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script>
         // ... your script code ...
         
