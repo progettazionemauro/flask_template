@@ -1,6 +1,9 @@
 from function1 import function1
 from function2 import function2
 from flask import Flask, render_template
+import psycopg2
+from psycopg2 import Error
+
 
 app = Flask(__name__)
 
@@ -12,6 +15,7 @@ def calculator():
 def function1_route():
     result = function1 ()
     return result
+
 
 @app.route('/function2')
 def function2_route():
