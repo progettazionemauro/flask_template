@@ -1,26 +1,3 @@
-from function1 import function1
-from function2 import function2
-from flask import Flask, render_template
-import psycopg2
-from psycopg2 import Error
-
-
-app = Flask(__name__)
-
-@app.route('/')
-def calculator():
-    return render_template('index.html')
-
-@app.route('/function1')
-def function1_route():
-    result = function1 ()
-    return result
-
-
-@app.route('/function2')
-def function2_route():
-    result = function2()
-    return result
 # I dati dei bottoni vengono prcessati dinamicamente. Di seguito la spiegazione:
 """ Route Definition:
 
@@ -58,42 +35,136 @@ For example:
     "update_button": "Update 1"
 }
 This JSON response can be processed by the client-side code (JavaScript) to dynamically generate the buttons on the webpage. """
-@app.route('/create_button', methods=['POST'])
+from function1 import function1
+from function2 import function2
+from flask import Flask, render_template, request, g
+import sqlite3
+
+app = Flask(__name__)
+app.config['DATABASE'] = 'buttons.db'
+
+
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = sqlite3.connect(app.config['DATABASE'])
+    return db
+
+
+def init_db():
+    with app.app_context():
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS buttons (
+                button_id INTEGER PRIMARY KEY,
+                new_button TEXT NOT NULL,
+                delete_button TEXT NOT NULL,
+                update_button TEXT NOT NULL
+            )
+        ''')
+        db.commit()
+
+
+@app.route('/')
+def calculator():
+    return render_template('index.html')
+
+
+@app.route('/function1')
+def function1_route():
+    result = function1()
+    return result
+
+
+@app.route('/function2')
+def function2_route():
+    result = function2()
+    return result
+
+
+@app.route('/create_button', methods=['GET', 'POST'])
 def create_button():
-    # Logic to handle the create button functionality
-    button_id = request.form.get('button_id')
+    if request.method == 'POST':
+        with app.app_context():
+            # Handle POST request logic to create a new button
+            button_id = request.form.get('button_id')
+            print(f"Received button_id: {button_id}")  # Print the button_id for debugging
 
-    # Create new button
-    new_button = f'Button {button_id}'
-    delete_button = f'Delete {button_id}'
-    update_button = f'Update {button_id}'
+            new_button = f'Button {button_id}'
+            delete_button = f'Delete {button_id}'
+            update_button = f'Update {button_id}'
 
-    return {
-        'new_button': new_button,
-        'delete_button': delete_button,
-        'update_button': update_button
-    }
+            db = get_db()
+            cursor = db.cursor()
+            cursor.execute(
+                "INSERT INTO buttons (button_id, new_button, delete_button, update_button) VALUES (?, ?, ?, ?)",
+                (button_id, new_button, delete_button, update_button))
+            db.commit()
+
+            return {
+                'new_button': new_button,
+                'delete_button': delete_button,
+                'update_button': update_button
+            }
+    elif request.method == 'GET':
+        with app.app_context():
+            # Handle GET request logic to retrieve existing buttons
+            db = get_db()
+            cursor = db.cursor()
+            cursor.execute("SELECT button_id, new_button, delete_button, update_button FROM buttons")
+            buttons = cursor.fetchall()
+
+            response = {
+                'buttons': buttons
+            }
+
+            return response
+    else:
+        return 'Method not allowed'
+
 
 @app.route('/delete_button', methods=['POST'])
 def delete_button():
-    # Logic to handle the delete button functionality
-    # You can access the button ID or any other necessary data from the request
-    # Replace the code below with your own delete logic
-    button_id = request.form.get('button_id')
-    # Perform deletion operation based on the button_id
+    with app.app_context():
+        button_id = request.form.get('button_id')
 
-    return 'Button deleted successfully'  # Return an appropriate response
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("DELETE FROM buttons WHERE button_id=?", (button_id,))
+        db.commit()
+
+        return 'Button deleted successfully'
+
 
 @app.route('/update_button', methods=['POST'])
 def update_button():
-    # Logic to handle the update button functionality
-    # You can access the button ID or any other necessary data from the request
-    # Replace the code below with your own update logic
-    button_id = request.form.get('button_id')
-    # Perform update operation based on the button_id
+    with app.app_context():
+        button_id = request.form.get('button_id')
 
-    return 'Button updated successfully'  # Return an appropriate response
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("UPDATE buttons SET new_button=?, delete_button=?, update_button=? WHERE button_id=?",
+                       (f'Button {button_id}', f'Delete {button_id}', f'Update {button_id}', button_id))
+        db.commit()
+
+        return 'Button updated successfully'
+
+
+@app.route('/get_buttons', methods=['GET'])
+def get_buttons():
+    with app.app_context():
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT button_id, new_button, delete_button, update_button FROM buttons")
+        buttons = cursor.fetchall()
+
+        return {
+            'buttons': buttons
+        }
 
 
 if __name__ == '__main__':
-    app.run(port=0)  # Use 0 to let the OS choose an available port
+    with app.app_context():
+        init_db()
+    app.run(port=0)
