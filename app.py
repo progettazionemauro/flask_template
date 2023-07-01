@@ -35,10 +35,10 @@ For example:
     "update_button": "Update 1"
 }
 This JSON response can be processed by the client-side code (JavaScript) to dynamically generate the buttons on the webpage. """
-from function1 import function1
-from function2 import function2
 from flask import Flask, render_template, request, g
 import sqlite3
+from function1 import function1
+from function2 import function2
 
 app = Flask(__name__)
 app.config['DATABASE'] = 'buttons.db'
@@ -101,6 +101,7 @@ def create_button():
                 "INSERT INTO buttons (button_id, new_button, delete_button, update_button) VALUES (?, ?, ?, ?)",
                 (button_id, new_button, delete_button, update_button))
             db.commit()
+            print("Button inserted successfully")
 
             return {
                 'new_button': new_button,
@@ -167,4 +168,5 @@ def get_buttons():
 if __name__ == '__main__':
     with app.app_context():
         init_db()
-    app.run(port=0)
+    app.run(port=0, debug=True)
+
