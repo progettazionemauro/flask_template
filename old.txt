@@ -1,0 +1,314 @@
+File: app_bk.py
+from function1 import function1
+from function2 import function2
+from flask import Flask, render_template
+import psycopg2
+from psycopg2 import Error
+
+
+app = Flask(__name__)
+
+@app.route('/')
+def calculator():
+    return render_template('index.html')
+
+@app.route('/function1')
+def function1_route():
+    result = function1 ()
+    return result
+
+
+@app.route('/function2')
+def function2_route():
+    result = function2()
+    return result
+# I dati dei bottoni vengono prcessati dinamicamente. Di seguito la spiegazione:
+""" Route Definition:
+
+@app.route('/create_button', methods=['POST'])
+def create_button():
+This route is defined to handle the /create_button URL and expects a POST request.
+Retrieving Button ID:
+
+    button_id = request.form.get('button_id')
+The request.form.get('button_id') statement retrieves the value of the button_id from the form data of the POST request.
+It assumes that the form data contains a field with the name button_id which holds the ID of the button being created.
+Generating Button Text:
+
+    new_button = f'Button {button_id}'
+    delete_button = f'Delete {button_id}'
+    update_button = f'Update {button_id}'
+Three strings are generated using f-strings:
+new_button: Represents the text for the newly created button. It includes the button_id in the format 'Button {button_id}'.
+delete_button: Represents the text for the delete button associated with the newly created button. It includes the button_id in the format 'Delete {button_id}'.
+update_button: Represents the text for the update button associated with the newly created button. It includes the button_id in the format 'Update {button_id}'.
+Returning the Response:
+
+    return {
+        'new_button': new_button,
+        'delete_button': delete_button,
+        'update_button': update_button
+    }
+The response is returned as a dictionary object containing the three button texts (new_button, delete_button, update_button).
+The response will be in JSON format, where each button text is associated with a corresponding key.
+For example:
+
+{
+    "new_button": "Button 1",
+    "delete_button": "Delete 1",
+    "update_button": "Update 1"
+}
+This JSON response can be processed by the client-side code (JavaScript) to dynamically generate the buttons on the webpage. """
+@app.route('/create_button', methods=['POST'])
+def create_button():
+    # Logic to handle the create button functionality
+    button_id = request.form.get('button_id')
+
+    # Create new button
+    new_button = f'Button {button_id}'
+    delete_button = f'Delete {button_id}'
+    update_button = f'Update {button_id}'
+
+    return {
+        'new_button': new_button,
+        'delete_button': delete_button,
+        'update_button': update_button
+    }
+
+@app.route('/delete_button', methods=['POST'])
+def delete_button():
+    # Logic to handle the delete button functionality
+    # You can access the button ID or any other necessary data from the request
+    # Replace the code below with your own delete logic
+    button_id = request.form.get('button_id')
+    # Perform deletion operation based on the button_id
+
+    return 'Button deleted successfully'  # Return an appropriate response
+
+@app.route('/update_button', methods=['POST'])
+def update_button():
+    # Logic to handle the update button functionality
+    # You can access the button ID or any other necessary data from the request
+    # Replace the code below with your own update logic
+    button_id = request.form.get('button_id')
+    # Perform update operation based on the button_id
+
+    return 'Button updated successfully'  # Return an appropriate response
+
+
+if __name__ == '__main__':
+    app.run(port=0)  # Use 0 to let the OS choose an available port
+-------OOOO------
+
+File: templates/index_bk.html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Web Calculator</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        
+        .button-container {
+            margin-bottom: 10px;
+        }
+        
+        .button-container label {
+            margin-right: 10px;
+        }
+        
+        .button-container input[type="text"] {
+            font-size: 14px;
+            border-radius: 4px;
+        }
+        
+        button {
+            margin-bottom: 10px;
+            font-size: 16px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Web Calculator</h1>
+        
+        <div class="button-container">
+            <button onclick="runFunction1()" class="btn btn-primary">Function 1</button>
+            <button onclick="runFunction2()" class="btn btn-primary">Function 2</button>
+        </div>
+        
+        <script src="../static/script_functions.js"></script>
+
+        <div class="button-container">
+            <div class="input-group">
+                <label for="buttonText" class="input-group-prepend">Button Text:</label>
+                <input type="text" id="buttonText" class="form-control">
+                <div class="input-group-append">
+                    <button onclick="createButton()" class="btn btn-success">Create Button</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script>
+        // ... your script code ...
+        
+        function createButton() {
+            var buttonText = document.getElementById('buttonText').value;
+            if (buttonText) {
+                var newButton = document.createElement('button');
+                newButton.textContent = buttonText;
+
+                var deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.onclick = function() {
+                    // Logic to delete the newButton
+                    document.body.removeChild(newButton);
+                    document.body.removeChild(deleteButton);
+                    document.body.removeChild(updateButton);
+                };
+
+                var updateButton = document.createElement('button');
+                updateButton.textContent = 'Update';
+                updateButton.onclick = function() {
+                    // Logic to update the newButton
+                    // Replace the code inside this function with your update logic
+                    alert('Update button clicked!');
+                };
+
+                document.body.appendChild(newButton);
+                document.body.appendChild(deleteButton);
+                document.body.appendChild(updateButton);
+            }
+        }
+    </script>
+</body>
+</html>
+-------OOOO------
+
+File: static/script_functions_bk.js
+File: static/script_bk.js
+// This code sets up an event listener on the mouseup event of the document. 
+// When the user releases the mouse button, this event listener is triggered. 
+// Inside the event listener function, it retrieves the selected text using 
+// window.getSelection().toString(). 
+// If there is any selected text, it calls the saveSelectedText() function 
+// and passes the selected text as an argument.
+
+
+document.addEventListener('mouseup', function(event) {
+    var selectedText = window.getSelection().toString();
+    if (selectedText !== '') {
+        saveSelectedText(selectedText);
+        createButton(); // Call the createButton() function
+    }
+});
+
+
+// The saveSelectedText() function is called when there is selected text. 
+// It performs an AJAX request to the server using the XMLHttpRequest object. 
+// The request is a POST request to the root URL ('/'). 
+// It sets the request header to specify that the content type is application/x-www-form-urlencoded. 
+// When the response is received, the onload event handler is triggered. 
+// It checks if the response status is 200 (indicating a successful response) and logs the response text 
+// to the console using console.log(xhr.responseText). 
+// The selected text is sent as data in the request body using the send() method. 
+// It is appended to the URL-encoded string 'selected_text=' + encodeURIComponent(text). 
+// The encodeURIComponent() function is used to properly encode the selected text to handle special characters. 
+// Overall, this code sets up an event listener that captures the selected text on a webpage 
+// and sends it to the server using an AJAX request when the user releases the mouse button. 
+// The server can then process the selected text and perform any necessary actions.
+
+
+// Function saveSelectedText(text):
+
+// This function takes a parameter text as the selected text.
+// It creates a new XMLHttpRequest object xhr to send an HTTP POST request to the root URL ('/').
+// It sets the request header Content-Type to 'application/x-www-form-urlencoded' to specify the 
+// type of data being sent.
+// It defines an onload event handler for the XMLHttpRequest object, 
+// which will be triggered when the response is received.
+// Inside the onload event handler, it checks if the response status is 200 
+// (indicating a successful response) using xhr.status === 200.
+// If the response status is 200, it logs the response text to the console using 
+// console.log(xhr.responseText).
+// Finally, it sends the POST request with the selected text as the
+// request body using xhr.send('selected_text=' + encodeURIComponent(text)).
+
+// Specifications:
+/* The Content-Type header with the value 'application/x-www-form-urlencoded' is used to specify the format of the data being sent in an HTTP request.
+
+In the context of the code you provided, it is used when making a POST request with XMLHttpRequest to send data to the server. The 'application/x-www-form-urlencoded' format is a way of encoding form data to be included in the body of the request.
+
+When this content type is set, the data is encoded in a format that follows the key=value pairs separated by the & symbol convention. This encoding is commonly used when submitting HTML forms.
+
+For example, if you have a form with two fields, username and password, and the user inputs the values john and secretpassword, respectively, the encoded data would look like this: 'username=john&password=secretpassword'.
+
+By setting the Content-Type to 'application/x-www-form-urlencoded', you indicate to the server that the data being sent in the request body is in this specific format. This allows the server to correctly parse and process the data on the server-side.
+
+In summary, 'application/x-www-form-urlencoded' is a content type used to send form data in an HTTP request, where the data is encoded as key=value pairs separated by &. */
+
+function saveSelectedText(text) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/');
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            console.log(xhr.responseText);
+        }
+    };
+    xhr.send('selected_text=' + encodeURIComponent(text));
+}
+
+
+// Function createButton():
+
+// This function creates a new button dynamically using document.createElement('button').
+// It sets the text content of the button to 'New Button' using newButton.textContent = 'New Button'.
+// It defines an onclick event handler for the button, which will be triggered when the button is clicked.
+// Inside the onclick event handler, it calls a function from function.py 
+// (replace function1 with the appropriate function name) to get the result.
+// It displays an alert with the message 'New Button Result: ' concatenated with the result.
+// Finally, it appends the new button to the <body> element of the document using document.body.appendChild(newButton).
+// These two functions work together to capture the selected text, 
+// send it to the server using an AJAX request, and dynamically create a new button. When the new button is clicked, it executes a function from function.py and displays the result in an alert.
+function createButton() {
+    var buttonText = prompt('Enter the text for the new button:');
+    if (buttonText) {
+        var newButton = document.createElement('button');
+        newButton.textContent = buttonText;
+
+        var deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.onclick = function() {
+            // Logic to delete the newButton
+            document.body.removeChild(newButton);
+            document.body.removeChild(deleteButton);
+            document.body.removeChild(updateButton);
+        };
+
+        var updateButton = document.createElement('button');
+        updateButton.textContent = 'Update';
+        updateButton.onclick = function() {
+            // Logic to update the newButton
+            // Replace the code inside this function with your update logic
+            alert('Update button clicked!');
+        };
+
+        document.body.appendChild(newButton);
+        document.body.appendChild(deleteButton);
+        document.body.appendChild(updateButton);
+    }
+}
+-------OOOO------
+
