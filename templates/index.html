@@ -1,107 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Web Calculator</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <style>
-        body {
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        
-        .button-container {
-            margin-bottom: 10px;
-        }
-        
-        .button-container label {
-            margin-right: 10px;
-        }
-        
-        .button-container input[type="text"] {
-            font-size: 14px;
-            border-radius: 4px;
-        }
-        
-        button {
-            margin-bottom: 10px;
-            font-size: 16px;
-            border-radius: 4px;
-        }
-    </style>
+    <title>Create Object</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>Web Calculator</h1>
-        
-        <div class="button-container">
-            <button onclick="runFunction1()" class="btn btn-primary">Function 1</button>
-            <button onclick="runFunction2()" class="btn btn-primary">Function 2</button>
-        </div>
-        
-        <script src="../static/script_functions.js"></script>
-
-        <div class="button-container">
-            <div class="input-group">
-                <label for="buttonText" class="input-group-prepend">Button Text:</label>
-                <input type="text" id="buttonText" class="form-control">
-                <label for="buttonId" class="input-group-prepend">Button ID:</label>
-                <input type="text" id="buttonId" class="form-control">
-                <div class="input-group-append">
-                    <button onclick="createButton()" class="btn btn-success">Create Button</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    <script>
-        // ... your script code ...
-        
-        function createButton() {
-            var buttonText = document.getElementById('buttonText').value;
-            var buttonId = document.getElementById('buttonId').value;
-            if (buttonText && buttonId) {
-                var newButton = document.createElement('button');
-                newButton.textContent = buttonText;
-
-                var deleteButton = document.createElement('button');
-                deleteButton.textContent = 'Delete';
-                deleteButton.onclick = function() {
-                    // Logic to delete the newButton
-                    document.body.removeChild(newButton);
-                    document.body.removeChild(deleteButton);
-                    document.body.removeChild(updateButton);
-                };
-
-                var updateButton = document.createElement('button');
-                updateButton.textContent = 'Update';
-                updateButton.onclick = function() {
-                    // Logic to update the newButton
-                    // Replace the code inside this function with your update logic
-                    alert('Update button clicked!');
-                };
-
-                document.body.appendChild(newButton);
-                document.body.appendChild(deleteButton);
-                document.body.appendChild(updateButton);
-                
-                // Send a POST request to the server to create the button in the database
-                var xhr = new XMLHttpRequest();
-                xhr.open('POST', '/create_button', true);
-                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                xhr.onload = function() {
-                    if (xhr.status === 200) {
-                        console.log(xhr.responseText);
-                    }
-                };
-                xhr.send('button_id=' + encodeURIComponent(buttonId));
-            }
-        }
-    </script>
+    <h1>Create Object</h1>
+    <form id="object-form">
+        <input type="text" id="name-input" placeholder="Name">
+        <button type="submit">Create</button>
+    </form>
+    <ul id="object-list">
+        {% for obj in objects %}
+            <li>{{ obj[1] }}</li>
+        {% endfor %}
+    </ul>
 </body>
 </html>

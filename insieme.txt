@@ -1,26 +1,4 @@
-from function1 import function1
-from function2 import function2
-from flask import Flask, render_template
-import psycopg2
-
-
-
-app = Flask(__name__)
-
-@app.route('/')
-def calculator():
-    return render_template('index.html')
-
-@app.route('/function1')
-def function1_route():
-    result = function1 ()
-    return result
-
-
-@app.route('/function2')
-def function2_route():
-    result = function2()
-    return result
+File: app.py
 # I dati dei bottoni vengono prcessati dinamicamente. Di seguito la spiegazione:
 """ Route Definition:
 
@@ -58,65 +36,254 @@ For example:
     "update_button": "Update 1"
 }
 This JSON response can be processed by the client-side code (JavaScript) to dynamically generate the buttons on the webpage. """
-@app.route('/create_button', methods=['POST'])
+from flask import Flask, render_template, request, g
+import sqlite3
+from function1 import function1
+from function2 import function2
+
+app = Flask(__name__)
+app.config['DATABASE'] = 'buttons.db'
+
+
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = sqlite3.connect(app.config['DATABASE'])
+    return db
+
+
+def init_db():
+    with app.app_context():
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS buttons (
+                button_id INTEGER PRIMARY KEY,
+                new_button TEXT NOT NULL,
+                delete_button TEXT NOT NULL,
+                update_button TEXT NOT NULL
+            )
+        ''')
+        db.commit()
+
+
+@app.route('/')
+def calculator():
+    return render_template('index.html')
+
+
+@app.route('/function1')
+def function1_route():
+    result = function1()
+    return result
+
+
+@app.route('/function2')
+def function2_route():
+    result = function2()
+    return result
+
+
+@app.route('/create_button', methods=['GET', 'POST'])
 def create_button():
-    # Logic to handle the create button functionality
-    button_id = request.form.get('button_id')
+    if request.method == 'POST':
+        with app.app_context():
+            # Handle POST request logic to create a new button
+            button_id = request.form.get('button_id')
+            print(f"Received button_id: {button_id}")  # Print the button_id for debugging
 
-    # Create new button
-    new_button = f'Button {button_id}'
-    delete_button = f'Delete {button_id}'
-    update_button = f'Update {button_id}'
+            new_button = f'Button {button_id}'
+            delete_button = f'Delete {button_id}'
+            update_button = f'Update {button_id}'
 
-    return {
-        'new_button': new_button,
-        'delete_button': delete_button,
-        'update_button': update_button
-    }
+            db = get_db()
+            cursor = db.cursor()
+            cursor.execute(
+                "INSERT INTO buttons (button_id, new_button, delete_button, update_button) VALUES (?, ?, ?, ?)",
+                (button_id, new_button, delete_button, update_button))
+            db.commit()
+            print("Button inserted successfully")
+
+            return {
+                'new_button': new_button,
+                'delete_button': delete_button,
+                'update_button': update_button
+            }
+    elif request.method == 'GET':
+        with app.app_context():
+            # Handle GET request logic to retrieve existing buttons
+            db = get_db()
+            cursor = db.cursor()
+            cursor.execute("SELECT button_id, new_button, delete_button, update_button FROM buttons")
+            buttons = cursor.fetchall()
+
+            response = {
+                'buttons': buttons
+            }
+
+            return response
+    else:
+        return 'Method not allowed'
+
 
 @app.route('/delete_button', methods=['POST'])
 def delete_button():
-    # Logic to handle the delete button functionality
-    # You can access the button ID or any other necessary data from the request
-    # Replace the code below with your own delete logic
-    button_id = request.form.get('button_id')
-    # Perform deletion operation based on the button_id
+    with app.app_context():
+        button_id = request.form.get('button_id')
 
-    return 'Button deleted successfully'  # Return an appropriate response
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("DELETE FROM buttons WHERE button_id=?", (button_id,))
+        db.commit()
+
+        return 'Button deleted successfully'
+
 
 @app.route('/update_button', methods=['POST'])
 def update_button():
-    # Logic to handle the update button functionality
-    # You can access the button ID or any other necessary data from the request
-    # Replace the code below with your own update logic
-    button_id = request.form.get('button_id')
-    # Perform update operation based on the button_id
+    with app.app_context():
+        button_id = request.form.get('button_id')
 
-    return 'Button updated successfully'  # Return an appropriate response
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("UPDATE buttons SET new_button=?, delete_button=?, update_button=? WHERE button_id=?",
+                       (f'Button {button_id}', f'Delete {button_id}', f'Update {button_id}', button_id))
+        db.commit()
+
+        return 'Button updated successfully'
+
+
+@app.route('/get_buttons', methods=['GET'])
+def get_buttons():
+    with app.app_context():
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT button_id, new_button, delete_button, update_button FROM buttons")
+        buttons = cursor.fetchall()
+
+        return {
+            'buttons': buttons
+        }
 
 
 if __name__ == '__main__':
-    app.run(port=0)  # Use 0 to let the OS choose an available port
-# function1.py
-def function1():
-    result = 10 + 20  # Example function
-    return str(result)# function2.py
-def function2():
-    result = 30 - 15  # Example function
-    return str(result)
-function runFunction1() {
-    fetch('/function1')
-        .then(response => response.text())
-        .then(result => alert('Function 1 Result: ' + result))
-        .catch(error => console.error(error));
-}
+    with app.app_context():
+        init_db()
+    app.run(port=0, debug=True)
 
-function runFunction2() {
-    fetch('/function2')
-        .then(response => response.text())
-        .then(result => alert('Function 2 Result: ' + result))
-        .catch(error => console.error(error));
-}
+-------OOOO------
+
+File: templates/index.html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Web Calculator</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        
+        .button-container {
+            margin-bottom: 10px;
+        }
+        
+        .button-container label {
+            margin-right: 10px;
+        }
+        
+        .button-container input[type="text"] {
+            font-size: 14px;
+            border-radius: 4px;
+        }
+        
+        button {
+            margin-bottom: 10px;
+            font-size: 16px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Web Calculator</h1>
+        
+        <div class="button-container">
+            <button onclick="runFunction1()" class="btn btn-primary">Function 1</button>
+            <button onclick="runFunction2()" class="btn btn-primary">Function 2</button>
+        </div>
+        
+        <script src="../static/script_functions.js"></script>
+
+        <div class="button-container">
+            <div class="input-group">
+                <label for="buttonText" class="input-group-prepend">Button Text:</label>
+                <input type="text" id="buttonText" class="form-control">
+                <label for="buttonId" class="input-group-prepend">Button ID:</label>
+                <input type="text" id="buttonId" class="form-control">
+                <div class="input-group-append">
+                    <button onclick="createButton()" class="btn btn-success">Create Button</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script>
+        // ... your script code ...
+        
+        function createButton() {
+            var buttonText = document.getElementById('buttonText').value;
+            var buttonId = document.getElementById('buttonId').value;
+            if (buttonText && buttonId) {
+                var newButton = document.createElement('button');
+                newButton.textContent = buttonText;
+
+                var deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.onclick = function() {
+                    // Logic to delete the newButton
+                    document.body.removeChild(newButton);
+                    document.body.removeChild(deleteButton);
+                    document.body.removeChild(updateButton);
+                };
+
+                var updateButton = document.createElement('button');
+                updateButton.textContent = 'Update';
+                updateButton.onclick = function() {
+                    // Logic to update the newButton
+                    // Replace the code inside this function with your update logic
+                    alert('Update button clicked!');
+                };
+
+                document.body.appendChild(newButton);
+                document.body.appendChild(deleteButton);
+                document.body.appendChild(updateButton);
+                
+                // Send a POST request to the server to create the button in the database
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '/create_button', true);
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        console.log(xhr.responseText);
+                    }
+                };
+                xhr.send('button_id=' + encodeURIComponent(buttonId));
+            }
+        }
+    </script>
+</body>
+</html>
+-------OOOO------
+
+File: static/script.js
 // This code sets up an event listener on the mouseup event of the document. 
 // When the user releases the mouse button, this event listener is triggered. 
 // Inside the event listener function, it retrieves the selected text using 
@@ -229,96 +396,5 @@ function createButton() {
         document.body.appendChild(updateButton);
     }
 }
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Web Calculator</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <style>
-        body {
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        
-        .button-container {
-            margin-bottom: 10px;
-        }
-        
-        .button-container label {
-            margin-right: 10px;
-        }
-        
-        .button-container input[type="text"] {
-            font-size: 14px;
-            border-radius: 4px;
-        }
-        
-        button {
-            margin-bottom: 10px;
-            font-size: 16px;
-            border-radius: 4px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Web Calculator</h1>
-        
-        <div class="button-container">
-            <button onclick="runFunction1()" class="btn btn-primary">Function 1</button>
-            <button onclick="runFunction2()" class="btn btn-primary">Function 2</button>
-        </div>
-        
-        <script src="../static/script_functions.js"></script>
+-------OOOO------
 
-        <div class="button-container">
-            <div class="input-group">
-                <label for="buttonText" class="input-group-prepend">Button Text:</label>
-                <input type="text" id="buttonText" class="form-control">
-                <div class="input-group-append">
-                    <button onclick="createButton()" class="btn btn-success">Create Button</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    <script>
-        // ... your script code ...
-        
-        function createButton() {
-            var buttonText = document.getElementById('buttonText').value;
-            if (buttonText) {
-                var newButton = document.createElement('button');
-                newButton.textContent = buttonText;
-
-                var deleteButton = document.createElement('button');
-                deleteButton.textContent = 'Delete';
-                deleteButton.onclick = function() {
-                    // Logic to delete the newButton
-                    document.body.removeChild(newButton);
-                    document.body.removeChild(deleteButton);
-                    document.body.removeChild(updateButton);
-                };
-
-                var updateButton = document.createElement('button');
-                updateButton.textContent = 'Update';
-                updateButton.onclick = function() {
-                    // Logic to update the newButton
-                    // Replace the code inside this function with your update logic
-                    alert('Update button clicked!');
-                };
-
-                document.body.appendChild(newButton);
-                document.body.appendChild(deleteButton);
-                document.body.appendChild(updateButton);
-            }
-        }
-    </script>
-</body>
-</html>

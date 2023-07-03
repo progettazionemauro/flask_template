@@ -1,112 +1,66 @@
-// This code sets up an event listener on the mouseup event of the document. 
-// When the user releases the mouse button, this event listener is triggered. 
-// Inside the event listener function, it retrieves the selected text using 
-// window.getSelection().toString(). 
-// If there is any selected text, it calls the saveSelectedText() function 
-// and passes the selected text as an argument.
+// Executes when the document is fully loaded
+document.addEventListener('DOMContentLoaded', function() {
 
-
-document.addEventListener('mouseup', function(event) {
-    var selectedText = window.getSelection().toString();
-    if (selectedText !== '') {
-        saveSelectedText(selectedText);
-        createButton(); // Call the createButton() function
-    }
-});
-
-
-// The saveSelectedText() function is called when there is selected text. 
-// It performs an AJAX request to the server using the XMLHttpRequest object. 
-// The request is a POST request to the root URL ('/'). 
-// It sets the request header to specify that the content type is application/x-www-form-urlencoded. 
-// When the response is received, the onload event handler is triggered. 
-// It checks if the response status is 200 (indicating a successful response) and logs the response text 
-// to the console using console.log(xhr.responseText). 
-// The selected text is sent as data in the request body using the send() method. 
-// It is appended to the URL-encoded string 'selected_text=' + encodeURIComponent(text). 
-// The encodeURIComponent() function is used to properly encode the selected text to handle special characters. 
-// Overall, this code sets up an event listener that captures the selected text on a webpage 
-// and sends it to the server using an AJAX request when the user releases the mouse button. 
-// The server can then process the selected text and perform any necessary actions.
-
-
-// Function saveSelectedText(text):
-
-// This function takes a parameter text as the selected text.
-// It creates a new XMLHttpRequest object xhr to send an HTTP POST request to the root URL ('/').
-// It sets the request header Content-Type to 'application/x-www-form-urlencoded' to specify the 
-// type of data being sent.
-// It defines an onload event handler for the XMLHttpRequest object, 
-// which will be triggered when the response is received.
-// Inside the onload event handler, it checks if the response status is 200 
-// (indicating a successful response) using xhr.status === 200.
-// If the response status is 200, it logs the response text to the console using 
-// console.log(xhr.responseText).
-// Finally, it sends the POST request with the selected text as the
-// request body using xhr.send('selected_text=' + encodeURIComponent(text)).
-
-// Specifications:
-/* The Content-Type header with the value 'application/x-www-form-urlencoded' is used to specify the format of the data being sent in an HTTP request.
-
-In the context of the code you provided, it is used when making a POST request with XMLHttpRequest to send data to the server. The 'application/x-www-form-urlencoded' format is a way of encoding form data to be included in the body of the request.
-
-When this content type is set, the data is encoded in a format that follows the key=value pairs separated by the & symbol convention. This encoding is commonly used when submitting HTML forms.
-
-For example, if you have a form with two fields, username and password, and the user inputs the values john and secretpassword, respectively, the encoded data would look like this: 'username=john&password=secretpassword'.
-
-By setting the Content-Type to 'application/x-www-form-urlencoded', you indicate to the server that the data being sent in the request body is in this specific format. This allows the server to correctly parse and process the data on the server-side.
-
-In summary, 'application/x-www-form-urlencoded' is a content type used to send form data in an HTTP request, where the data is encoded as key=value pairs separated by &. */
-
-function saveSelectedText(text) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', '/');
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xhr.onload = function() {
-        if (xhr.status === 200) {
-            console.log(xhr.responseText);
+    // Attaches a submit event listener to the form with ID 'object-form'
+    document.getElementById('object-form').addEventListener('submit', function(event) {
+      event.preventDefault(); // Prevents the default form submission behavior
+      
+      // Retrieves the value entered in the name input field
+      var name = document.getElementById('name-input').value;
+      
+      // Creates a new XMLHttpRequest object
+      var xhr = new XMLHttpRequest();
+      
+      // Defines the callback function to handle the AJAX response
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            // Executes when the server responds with a successful message
+            
+            alert(xhr.responseText); // Displays an alert with the response message
+            document.getElementById('name-input').value = ''; // Clears the name input field
+            updateObjectList(); // Updates the object list
+            setTimeout(function() {
+              location.reload(); // Refreshes the page after a delay (2 seconds)
+            }, 2000);
+          }
         }
-    };
-    xhr.send('selected_text=' + encodeURIComponent(text));
-}
-
-
-// Function createButton():
-
-// This function creates a new button dynamically using document.createElement('button').
-// It sets the text content of the button to 'New Button' using newButton.textContent = 'New Button'.
-// It defines an onclick event handler for the button, which will be triggered when the button is clicked.
-// Inside the onclick event handler, it calls a function from function.py 
-// (replace function1 with the appropriate function name) to get the result.
-// It displays an alert with the message 'New Button Result: ' concatenated with the result.
-// Finally, it appends the new button to the <body> element of the document using document.body.appendChild(newButton).
-// These two functions work together to capture the selected text, 
-// send it to the server using an AJAX request, and dynamically create a new button. When the new button is clicked, it executes a function from function.py and displays the result in an alert.
-function createButton() {
-    var buttonText = prompt('Enter the text for the new button:');
-    if (buttonText) {
-        var newButton = document.createElement('button');
-        newButton.textContent = buttonText;
-
-        var deleteButton = document.createElement('button');
-        deleteButton.textContent = 'Delete';
-        deleteButton.onclick = function() {
-            // Logic to delete the newButton
-            document.body.removeChild(newButton);
-            document.body.removeChild(deleteButton);
-            document.body.removeChild(updateButton);
-        };
-
-        var updateButton = document.createElement('button');
-        updateButton.textContent = 'Update';
-        updateButton.onclick = function() {
-            // Logic to update the newButton
-            // Replace the code inside this function with your update logic
-            alert('Update button clicked!');
-        };
-
-        document.body.appendChild(newButton);
-        document.body.appendChild(deleteButton);
-        document.body.appendChild(updateButton);
+      };
+      
+      // Sends a POST request to the specified URL with the name as data
+      xhr.open('POST', '/add');
+      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+      xhr.send('name=' + encodeURIComponent(name));
+    });
+  
+    // Function to update the object list
+    function updateObjectList() {
+      // Creates a new XMLHttpRequest object
+      var xhr = new XMLHttpRequest();
+  
+      // Defines the callback function to handle the AJAX response
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            // Executes when the server responds with a successful message
+            
+            var responseHTML = document.createElement('html');
+            responseHTML.innerHTML = xhr.responseText;
+  
+            // Updates the content of the 'object-list' element with the response data
+            var objectList = responseHTML.querySelector('#object-list');
+            document.getElementById('object-list').innerHTML = objectList.innerHTML;
+          }
+        }
+      };
+  
+      // Sends a GET request to the specified URL
+      xhr.open('GET', '/');
+      xhr.send();
     }
-}
+  
+    // Updates the object list when the page loads
+    updateObjectList();
+  
+  });
+  
