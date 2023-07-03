@@ -1,5 +1,6 @@
-
 document.addEventListener('DOMContentLoaded', function() {
+    // Executes when the DOM content has finished loading
+
     // Attaches a submit event listener to the form with ID 'object-form'
     document.getElementById('object-form').addEventListener('submit', function(event) {
         event.preventDefault(); // Prevents the default form submission behavior
@@ -37,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (target.classList.contains('update-btn')) {
             var objectId = target.getAttribute('data-id');
             var inputField = document.querySelector('input[data-id="' + objectId + '"]');
-            var updatedText = inputField.value;
+            var updatedText = inputField.value; // Retrieve the value from the input field
 
             // Send an AJAX request to the '/update' route with the updated data
             var xhr = new XMLHttpRequest();
@@ -52,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             xhr.open('POST', '/update/' + objectId);
             xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.send(JSON.stringify({ text: updatedText })); // Send the updated text as JSON data
+            xhr.send(JSON.stringify({ name: updatedText })); // Send the updated text as JSON data with the 'name' key
         }
     });
 
@@ -78,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Update the function to refresh the object list
+    // Function to refresh the object list
     function updateObjectList() {
         // Retrieve the updated object list from the server using AJAX
         var xhr = new XMLHttpRequest();
