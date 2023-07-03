@@ -398,3 +398,135 @@ function createButton() {
 }
 -------OOOO------
 
+File: app.py
+from flask import Flask, render_template, request, jsonify
+import sqlite3
+
+app = Flask(__name__)
+DATABASE = 'database.db'
+
+def create_table():
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute('CREATE TABLE IF NOT EXISTS objects (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)')
+    conn.commit()
+    conn.close()
+
+@app.route('/')
+def index():
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM objects')
+    objects = cursor.fetchall()
+    conn.close()
+    return render_template('index.html', objects=objects)
+
+@app.route('/add', methods=['POST'])
+def add_object():
+    name = request.form['name']
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO objects (name) VALUES (?)', (name,))
+    conn.commit()
+    conn.close()
+    return 'Object added successfully!'
+
+if __name__ == '__main__':
+    create_table()
+    app.run(port=0, debug=True)
+
+-------OOOO------
+
+File: templates/index.html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Object</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</head>
+<body>
+    <h1>Create Object</h1>
+    <form id="object-form">
+        <input type="text" id="name-input" placeholder="Name">
+        <button type="submit">Create</button>
+    </form>
+    <ul id="object-list">
+        {% for obj in objects %}
+            <li>{{ obj[1] }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
+-------OOOO------
+
+File: static/script.js
+// Executes when the document is fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+
+    // Attaches a submit event listener to the form with ID 'object-form'
+    document.getElementById('object-form').addEventListener('submit', function(event) {
+      event.preventDefault(); // Prevents the default form submission behavior
+      
+      // Retrieves the value entered in the name input field
+      var name = document.getElementById('name-input').value;
+      
+      // Creates a new XMLHttpRequest object
+      var xhr = new XMLHttpRequest();
+      
+      // Defines the callback function to handle the AJAX response
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            // Executes when the server responds with a successful message
+            
+            alert(xhr.responseText); // Displays an alert with the response message
+            document.getElementById('name-input').value = ''; // Clears the name input field
+            updateObjectList(); // Updates the object list
+            setTimeout(function() {
+              location.reload(); // Refreshes the page after a delay (2 seconds)
+            }, 2000);
+          }
+        }
+      };
+      
+      // Sends a POST request to the specified URL with the name as data
+      xhr.open('POST', '/add');
+      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+      xhr.send('name=' + encodeURIComponent(name));
+    });
+  
+    // Function to update the object list
+    function updateObjectList() {
+      // Creates a new XMLHttpRequest object
+      var xhr = new XMLHttpRequest();
+  
+      // Defines the callback function to handle the AJAX response
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            // Executes when the server responds with a successful message
+            
+            var responseHTML = document.createElement('html');
+            responseHTML.innerHTML = xhr.responseText;
+  
+            // Updates the content of the 'object-list' element with the response data
+            var objectList = responseHTML.querySelector('#object-list');
+            document.getElementById('object-list').innerHTML = objectList.innerHTML;
+          }
+        }
+      };
+  
+      // Sends a GET request to the specified URL
+      xhr.open('GET', '/');
+      xhr.send();
+    }
+  
+    // Updates the object list when the page loads
+    updateObjectList();
+  
+  });
+  
+
+-------OOOO------
+
