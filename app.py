@@ -1,8 +1,13 @@
 from flask import Flask, render_template, request, jsonify
+from dotenv import load_dotenv
 import sqlite3
+import os
 
 app = Flask(__name__)
 DATABASE = 'database.db'
+
+# Load environment variables from .env file
+load_dotenv('.env')
 
 def create_table():
     conn = sqlite3.connect(DATABASE)
@@ -55,4 +60,8 @@ def delete_object(object_id):
 
 if __name__ == '__main__':
     create_table()
-    app.run(port=0, debug=True)
+    if os.environ.get('FLASK_ENV') == 'production':
+        port = 8080
+    else:
+        port = 0
+    app.run(port=port, debug=True)
