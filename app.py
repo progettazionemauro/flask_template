@@ -58,10 +58,24 @@ def delete_object(object_id):
 
     return jsonify({'message': 'Object deleted successfully'})
 
+""" # utilizzo solo per prova su nginx
 if __name__ == '__main__':
     create_table()
-    if os.environ.get('FLASK_ENV') == 'production':
-        port = 8080
-    else:
-        port = 0
-    app.run(port=port, debug=True)
+    app.run(host='localhost', port=0, debug=True) """
+
+
+
+# Utilizzo nel caso generale
+if __name__ == '__main__':
+    create_table()
+    app.run(host='localhost', port=0, debug=True)
+
+    # Retrieve the actual port assigned by Flask
+    assigned_port = app.config['SNIKSOCKET'].getsockname()[1]
+
+    # Write the assigned port to a file
+    with open('port.txt', 'w') as f:
+        f.write(str(assigned_port))
+
+    # Execute the script to update the Nginx configuration
+    os.system('./update_nginx_config.sh')
