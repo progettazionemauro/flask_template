@@ -7,6 +7,7 @@ app = Flask(__name__)
 DATABASE = 'database.db'
 
 # Load environment variables from .env file
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv('.env')
 
 def create_table():
@@ -68,7 +69,7 @@ if __name__ == '__main__':
 # Utilizzo nel caso generale
 if __name__ == '__main__':
     create_table()
-    app.run(host='localhost', port=0, debug=True)
+    app.run(host='0.0.0.0', port=0, debug=True)
 
     # Retrieve the actual port assigned by Flask
     assigned_port = app.config['SNIKSOCKET'].getsockname()[1]
