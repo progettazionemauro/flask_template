@@ -3,6 +3,7 @@ from flask_socketio import SocketIO, emit
 from dotenv import load_dotenv
 import sqlite3
 import os
+import ssl
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'  # Replace with your own secret key
@@ -83,7 +84,11 @@ if __name__ == '__main__':
 # Utilizzo nel caso generale
 if __name__ == '__main__':
     create_table()
-    app.run(host='0.0.0.0', port=0, debug=True)
+    context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+    context.load_cert_chain('certificate.crt', 'ssl_certificate_key.key')
+
+    app.run(host='0.0.0.0', port=0, debug=True, ssl_context=context)
+
 
     # Retrieve the actual port assigned by Flask
     assigned_port = app.config['SNIKSOCKET'].getsockname()[1]

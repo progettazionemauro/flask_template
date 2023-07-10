@@ -239,3 +239,85 @@ http {
         }
     }
 }
+
+To get into account also the https: address we extend the nnginx.conf to this: 
+
+
+user www-data;
+worker_processes auto;
+error_log /var/log/nginx/error.log;
+pid /var/run/nginx.pid;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+    log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                    '$status $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent" "$http_x_forwarded_for"';
+    access_log /var/log/nginx/access.log main;
+    sendfile on;
+    keepalive_timeout 65;
+
+    ##
+    # SSL Settings
+    ##
+
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+
+    ##
+    # Gzip Settings
+    ##
+
+    gzip on;
+    gzip_comp_level 4;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+    ##
+    # Virtual Host Configs
+    ##
+
+    include /etc/nginx/conf.d/*.conf;
+    include /etc/nginx/sites-enabled/*;
+
+    # HTTP server block
+    server {
+        listen 80;
+        server_name localhost;
+
+        location / {
+            proxy_pass http://localhost:$http_port;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+
+        location /static {
+            alias /path/to/flask_app/static;
+        }
+    }
+
+    # HTTPS server block
+    server {
+        listen 443 ssl;
+        server_name localhost;
+        
+        ssl_certificate /home/mauro/Scrivania/flask_server_2/certificate.crt;
+        ssl_certificate_key /home/mauro/Scrivania/flask_server_2/ssl_certificate_key.key;
+
+        location / {
+            proxy_pass http://localhost:$http_port;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+
+        location /static {
+            alias /path/to/flask_app/static;
+        }
+    }
+}
+
+Attention this is the command to run to generate te 2 certificates: openssl req -x509 -newkey rsa:4096 -nodes -out /home/mauro/Scrivania/flask_server_2/ssl_certificate.crt -keyout /home/mauro/Scrivania/flask_server_2/ssl_certificate_key.key -days 365
