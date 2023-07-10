@@ -1,6 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Executes when the DOM content has finished loading
-
     // Attaches a submit event listener to the form with ID 'object-form'
     document.getElementById('object-form').addEventListener('submit', function(event) {
         event.preventDefault(); // Prevents the default form submission behavior
@@ -102,4 +100,45 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Updates the object list when the page loads
     updateObjectList();
+
+    // Socket event listeners
+    var socket = io(); // Connect to the SocketIO server
+
+    // Handle 'object_created' event
+    socket.on('object_created', function(data) {
+        // Update the UI with the newly created object
+        var newRow = document.createElement('tr');
+        newRow.innerHTML = '<td>' + data.name + '</td><td>' +
+            '<div class="d-flex align-items-center">' +
+            '<input type="text" class="update-input form-control me-2" data-id="' + data.id + '" placeholder="Update text">' +
+            '<button class="update-btn btn btn-primary me-2" data-id="' + data.id + '">Update</button>' +
+            '<button class="delete-btn btn btn-danger" data-id="' + data.id + '">Delete</button>' +
+            '</div></td>';
+        document.getElementById('object-list').appendChild(newRow);
+
+        // Refresh the object list
+        updateObjectList();
+    });
+
+    // Handle 'object_updated' event
+    socket.on('object_updated', function(data) {
+        // Update the UI with the updated object
+        var inputField = document.querySelector('input[data-id="' + data.id + '"]');
+        inputField.value = data.name;
+
+        // Refresh the object list
+        updateObjectList();
+    });
+
+    // Handle 'object_deleted' event
+    socket.on('object_deleted', function(data) {
+        // Remove the deleted object from the UI
+        var objectRow = document.querySelector('tr[data-id="' + data.id + '"]');
+        if (objectRow) {
+            objectRow.remove();
+        }
+
+        // Refresh the object list
+        updateObjectList();
+    });
 });

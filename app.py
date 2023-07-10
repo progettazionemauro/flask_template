@@ -1,9 +1,13 @@
 from flask import Flask, render_template, request, jsonify
+from flask_socketio import SocketIO, emit
 from dotenv import load_dotenv
 import sqlite3
 import os
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your-secret-key'  # Replace with your own secret key
+socketio = SocketIO(app)
+
 DATABASE = 'database.db'
 
 # Load environment variables from .env file
@@ -34,7 +38,11 @@ def add_object():
     cursor.execute('INSERT INTO objects (name) VALUES (?)', (name,))
     conn.commit()
     conn.close()
+    # Emit a socket event to notify clients about the newly created object
+    socketio.emit('object_created', {'name': name})
+    
     return 'Object added successfully!'
+
 
 @app.route('/update/<int:object_id>', methods=['POST'])
 def update_object(object_id):
@@ -46,6 +54,9 @@ def update_object(object_id):
     cursor.execute('UPDATE objects SET name=? WHERE id=?', (name, object_id))
     conn.commit()
     conn.close()
+    
+     # Emit a socket event to notify clients about the updated object
+    socketio.emit('object_updated', {'id': object_id, 'name': name})
 
     return jsonify({'message': 'Object updated successfully'})
 
@@ -56,6 +67,9 @@ def delete_object(object_id):
     cursor.execute('DELETE FROM objects WHERE id=?', (object_id,))
     conn.commit()
     conn.close()
+    
+     # Emit a socket event to notify clients about the deleted object
+    socketio.emit('object_deleted', {'id': object_id})
 
     return jsonify({'message': 'Object deleted successfully'})
 
