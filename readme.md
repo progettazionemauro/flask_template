@@ -321,3 +321,28 @@ http {
 }
 
 Attention this is the command to run to generate te 2 certificates: openssl req -x509 -newkey rsa:4096 -nodes -out /home/mauro/Scrivania/flask_server_2/ssl_certificate.crt -keyout /home/mauro/Scrivania/flask_server_2/ssl_certificate_key.key -days 365
+
+There is problem to generate both http and https. So we have built a code with if then else statment
+If you want to account for both HTTP and HTTPS configurations without generating errors, you can modify the context parameter in the app.run() function to handle both cases. One approach is to use an if statement to conditionally set the ssl_context based on your desired configuration.
+
+Here's an example of how you can modify the code to handle both HTTP and HTTPS configurations:
+
+python
+Copy code
+if __name__ == '__main__':
+    create_table()
+
+    # Check if HTTPS configuration is enabled
+    use_https = True  # Set this flag based on your configuration
+
+    if use_https:
+        context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+        context.load_cert_chain('certificate.crt', 'ssl_certificate_key.key')
+        app.run(host='0.0.0.0', port=0, debug=True, ssl_context=context)
+    else:
+        app.run(host='0.0.0.0', port=0, debug=True)
+In this modified code, the use_https flag is set to True if HTTPS configuration is desired, and False otherwise. Based on the value of this flag, the code conditionally sets the context variable and passes it to the ssl_context parameter of the app.run() function.
+
+If use_https is True, the code sets up the SSL context and uses it for running the Flask app with HTTPS. If use_https is False, the code runs the Flask app without SSL.
+
+By using this approach, you can handle both HTTP and HTTPS configurations without generating errors.

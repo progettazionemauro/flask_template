@@ -86,6 +86,10 @@ if __name__ == '__main__':
     create_table()
 
     # Check if HTTPS configuration is enabled
+    # In this modified code, the use_https flag is set to True if HTTPS configuration
+    # is desired, and False otherwise. Based on the value of this flag, 
+    # the code conditionally sets the context variable and passes it to the ssl_context 
+    # parameter of the app.run() function.
     use_https = False  # Set this flag based on your configuration
 
     if use_https:
