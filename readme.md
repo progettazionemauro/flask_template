@@ -252,3 +252,37 @@ In this modified code, the use_https flag is set to True if HTTPS configuration 
 If use_https is True, the code sets up the SSL context and uses it for running the Flask app with HTTPS. If use_https is False, the code runs the Flask app without SSL.
 
 By using this approach, you can handle both HTTP and HTTPS configurations without generating errors.
+///-----////
+Implementato flusso
+#!/bin/bash
+
+# Get the commit message as input
+read -p "Enter the commit message: " commit_message
+
+# Commit the changes
+git add .
+git commit -m "$commit_message"
+
+# Define the branch name for the central repository
+central_branch="vsc-repository-to-droplet"
+
+# Pull changes from the remote vsc-repository-to-droplet branch on GitHub
+echo "Pulling changes from origin/$central_branch"
+git pull origin $central_branch
+
+# Check if there are any conflicts after pulling
+if [ $? -eq 0 ]; then
+  # No conflicts, proceed with the push
+  # Push changes to the GitHub repository
+  echo "Pushing changes to origin/$central_branch"
+  git push origin $central_branch
+
+  # Log in to the DigitalOcean droplet and pull the changes
+  echo "Logging in to the DigitalOcean droplet..."
+  ssh root@146.190.169.21 "cd /home/mauro/flask-app && git pull"
+
+  echo "Changes successfully pushed to both GitHub and the DigitalOcean droplet."
+else
+  # Conflicts exist, prompt the user to resolve them manually
+  echo "There are conflicts after pulling. Please resolve the conflicts manually and commit the changes."
+fi
