@@ -1,3 +1,31 @@
+******
+Prova con nuovo codice corretto dell'hook:
+#!/bin/bash
+
+# Get the commit message as input
+read -p "Enter the commit message: " commit_message
+
+# Commit the changes
+git add .
+git commit -m "$commit_message"
+
+# Define the branch names for the central repository and droplet
+central_branch="vsc-repository-to-droplet"
+droplet_branch="vsc-repository-to-droplet"
+
+# Push changes to the GitHub repository
+echo "Pushing changes to origin/$central_branch"
+git push origin $central_branch
+
+# Log in to the DigitalOcean droplet and pull the changes
+echo "Logging in to the DigitalOcean droplet..."
+ssh root@146.190.169.21 "cd /home/mauro/flask-app && git pull"
+
+echo "Changes successfully pushed to both GitHub and the DigitalOcean droplet."
+
+
+
+/----/
 /-----/
 
 Prova dell'hook di push secondo questo codice: #!/bin/bash
