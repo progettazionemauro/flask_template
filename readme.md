@@ -1,3 +1,45 @@
+ /-----/
+
+ Prova dell'hook di push secondo questo codice:
+ #!/bin/bash
+
+# Store the current branch name in a variable
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+
+# Define the remote names for droplet and GitHub
+droplet_remote="droplet"
+github_remote="origin"
+
+# Define the branch names for central repository and droplet
+central_branch="vsc-repository-to-droplet"
+droplet_branch="vsc-repository-to-droplet"
+
+# Check if the current branch matches the central branch
+if [ "$current_branch" = "$central_branch" ]; then
+    # Add all changes to the staging area
+    git add .
+
+    # Prompt for the commit message
+    read -p "Enter the commit message: " commit_message
+
+    # Commit the changes
+    git commit -m "$commit_message"
+
+    # Push changes to the central repository (GitHub)
+    echo "Pushing changes to $github_remote/$central_branch"
+    git push $github_remote $central_branch
+
+    # Push changes to the DigitalOcean droplet's repository
+    echo "Pushing changes to $droplet_remote/$droplet_branch"
+    git push $droplet_remote $droplet_branch
+else
+    echo "You are on a branch other than $central_branch. Switch to $central_branch before running this script."
+fi
+
+
+/-----/
+
+
  In data 22/7/23 - è stato impostato il flusso git tra vsc, droplet digitalocean and GH
  Here's a breakdown of the files and their purpose in the web calculator example:
 
