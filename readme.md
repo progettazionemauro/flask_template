@@ -287,3 +287,6 @@ else
   # Conflicts exist, prompt the user to resolve them manually
   echo "There are conflicts after pulling. Please resolve the conflicts manually and commit the changes."
 fi
+
+
+//// h. 8:33 - Prova di inserimento di una nuova branch e sincronizzazione con Droplet e con GH ///
