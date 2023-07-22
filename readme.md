@@ -292,3 +292,4 @@ fi
 //// h. 8:33 - Prova di inserimento di una nuova branch e sincronizzazione con Droplet e con GH ///
 /// Posizionamento nuova branch anche su droplet
 /// h. 10:22 - l'hook da l'opzione di lasciare la branch effettiva oppure cambiarla
+/////////
