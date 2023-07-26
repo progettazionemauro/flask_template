@@ -17,9 +17,12 @@
 <body>
     <div class="container">
         <h1>Create Object</h1>
-        <form id="object-form">
+        <form id="object-form" method="POST" enctype="multipart/form-data">
             <div class="mb-3">
                 <input type="text" class="form-control" id="name-input" placeholder="Name">
+            </div>
+            <div class="mb-3">
+                <input type="file" id="file-input" name="file">
             </div>
             <button type="submit" class="btn btn-primary">Create</button>
         </form>
@@ -32,7 +35,7 @@
             </thead>
             <tbody id="object-list">
                 {% for obj in objects %}
-                    <tr>
+                    <tr data-id="{{ obj[0] }}">
                         <td>{{ obj[1] }}</td>
                         <td>
                             <div class="d-flex align-items-center">
@@ -41,9 +44,13 @@
                                 <button class="delete-btn btn btn-danger" data-id="{{ obj[0] }}">Delete</button>
                             </div>
                         </td>
+                        <td>
+                            <input type="file" class="form-control-file file-input" data-id="{{ obj[0] }}" name="file">
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
+            
         </table>
     </div>
 </body>

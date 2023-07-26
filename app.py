@@ -4,9 +4,15 @@ from dotenv import load_dotenv
 import sqlite3
 import os
 import ssl
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'  # Replace with your own secret key
+
+# Define the path where the files will be stored on the server
+UPLOAD_FOLDER = os.path.join(app.root_path, 'uploads')  # Using 'uploads' folder inside the app's root path
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 socketio = SocketIO(app)
 
 DATABASE = 'database.db'
@@ -34,16 +40,26 @@ def index():
 @app.route('/add', methods=['POST'])
 def add_object():
     name = request.form['name']
+
+    # Check if the post request has the file part
+    if 'file' in request.files:
+        file = request.files['file']
+        if file.filename != '':
+            # Secure the filename to prevent malicious filenames
+            filename = secure_filename(file.filename)
+            # Save the file to the server
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
     cursor.execute('INSERT INTO objects (name) VALUES (?)', (name,))
     conn.commit()
     conn.close()
-    # Emit a socket event to notify clients about the newly created object
-    socketio.emit('object_created', {'name': name})
-    
-    return 'Object added successfully!'
 
+    # Emit a socket event to notify clients about the newly created object
+    socketio.emit('object_created', {'id': cursor.lastrowid, 'name': name})
+
+    return 'Object added successfully!'
 
 @app.route('/update/<int:object_id>', methods=['POST'])
 def update_object(object_id):
@@ -55,8 +71,8 @@ def update_object(object_id):
     cursor.execute('UPDATE objects SET name=? WHERE id=?', (name, object_id))
     conn.commit()
     conn.close()
-    
-     # Emit a socket event to notify clients about the updated object
+
+    # Emit a socket event to notify clients about the updated object
     socketio.emit('object_updated', {'id': object_id, 'name': name})
 
     return jsonify({'message': 'Object updated successfully'})
@@ -65,47 +81,37 @@ def update_object(object_id):
 def delete_object(object_id):
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
-    cursor.execute('DELETE FROM objects WHERE id=?', (object_id,))
-    conn.commit()
+    cursor.execute('SELECT name FROM objects WHERE id=?', (object_id,))
+    row = cursor.fetchone()
+    if row:
+        name = row[0]
+        cursor.execute('DELETE FROM objects WHERE id=?', (object_id,))
+        conn.commit()
+        conn.close()
+
+        # Emit a socket event to notify clients about the deleted object
+        socketio.emit('object_deleted', {'id': object_id, 'name': name})
+
+        # Delete the associated file from the server
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], name)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        return jsonify({'message': 'Object deleted successfully'})
+
     conn.close()
-    
-     # Emit a socket event to notify clients about the deleted object
-    socketio.emit('object_deleted', {'id': object_id})
-
-    return jsonify({'message': 'Object deleted successfully'})
-
-""" # utilizzo solo per prova su nginx
-if __name__ == '__main__':
-    create_table()
-    app.run(host='localhost', port=0, debug=True) """
-
-
+    return jsonify({'message': 'Object not found'})
 
 # Utilizzo nel caso generale
 if __name__ == '__main__':
     create_table()
 
     # Check if HTTPS configuration is enabled
-    # In this modified code, the use_https flag is set to True if HTTPS configuration
-    # is desired, and False otherwise. Based on the value of this flag, 
-    # the code conditionally sets the context variable and passes it to the ssl_context 
-    # parameter of the app.run() function.
     use_https = False  # Set this flag based on your configuration
 
     if use_https:
         context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
         context.load_cert_chain('certificate.crt', 'ssl_certificate_key.key')
-        app.run(host='0.0.0.0', port=0, debug=True, ssl_context=context)
+        socketio.run(app, host='0.0.0.0', port=0, debug=True, ssl_context=context)
     else:
-        app.run(host='0.0.0.0', port=0, debug=True)
-
-
-    # Retrieve the actual port assigned by Flask
-    assigned_port = app.config['SNIKSOCKET'].getsockname()[1]
-
-    # Write the assigned port to a file
-    with open('port.txt', 'w') as f:
-        f.write(str(assigned_port))
-
-    # Execute the script to update the Nginx configuration
-    os.system('./update_nginx_config.sh')
+        socketio.run(app, host='0.0.0.0', port=0, debug=True)

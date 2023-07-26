@@ -6,6 +6,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // Retrieves the value entered in the name input field
         var name = document.getElementById('name-input').value;
 
+        // Retrieve the file from the file input field
+        var fileInput = document.querySelector('input.file-input[data-id="' + data.id + '"]');
+        var file = fileInput.files[0]; // Assuming single file upload
+
+        // Create a new FormData object to send both text and file data
+        var formData = new FormData();
+        formData.append('name', name);
+        formData.append('file', file);
+
         // Creates a new XMLHttpRequest object
         var xhr = new XMLHttpRequest();
 
@@ -24,10 +33,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         };
 
-        // Sends a POST request to the specified URL with the name as data
+        // Sends a POST request to the specified URL with the form data
         xhr.open('POST', '/add');
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.send('name=' + encodeURIComponent(name));
+        xhr.send(formData);
     });
 
     // Update button click event listener
