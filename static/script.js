@@ -1,19 +1,14 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Attaches a submit event listener to the form with ID 'object-form'
+    // Create button click event listener
     document.getElementById('object-form').addEventListener('submit', function(event) {
         event.preventDefault(); // Prevents the default form submission behavior
 
         // Retrieves the value entered in the name input field
         var name = document.getElementById('name-input').value;
 
-        // Retrieve the file from the file input field
-        var fileInput = document.querySelector('input.file-input[data-id="' + data.id + '"]');
-        var file = fileInput.files[0]; // Assuming single file upload
-
-        // Create a new FormData object to send both text and file data
+        // Create a new FormData object to send the text data
         var formData = new FormData();
         formData.append('name', name);
-        formData.append('file', file);
 
         // Creates a new XMLHttpRequest object
         var xhr = new XMLHttpRequest();
@@ -26,9 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     alert(xhr.responseText); // Displays an alert with the response message
                     document.getElementById('name-input').value = ''; // Clears the name input field
                     updateObjectList(); // Updates the object list
-                    setTimeout(function() {
-                        location.reload(); // Refreshes the page after a delay (2 seconds)
-                    }, 2000);
+                    location.reload(); // Refreshes the page
                 }
             }
         };
@@ -121,6 +114,8 @@ document.addEventListener('DOMContentLoaded', function() {
             '<input type="text" class="update-input form-control me-2" data-id="' + data.id + '" placeholder="Update text">' +
             '<button class="update-btn btn btn-primary me-2" data-id="' + data.id + '">Update</button>' +
             '<button class="delete-btn btn btn-danger" data-id="' + data.id + '">Delete</button>' +
+            '<button class="upload-btn btn btn-success" data-id="' + data.id + '">Upload File</button>' +
+            '<input type="file" class="form-control-file file-input" data-id="' + data.id + '" name="file">' +
             '</div></td>';
         document.getElementById('object-list').appendChild(newRow);
 
@@ -148,5 +143,38 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Refresh the object list
         updateObjectList();
+    });
+
+    // Upload button click event listener
+    document.addEventListener('click', function(event) {
+        var target = event.target;
+        if (target.classList.contains('upload-btn')) {
+            var objectId = target.getAttribute('data-id');
+            var fileInput = document.querySelector('input.file-input[data-id="' + objectId + '"]');
+            var file = fileInput.files[0]; // Assuming single file upload
+
+            // Create a new FormData object to send the file data
+            var formData = new FormData();
+            formData.append('file', file);
+
+            // Creates a new XMLHttpRequest object
+            var xhr = new XMLHttpRequest();
+
+            // Defines the callback function to handle the AJAX response
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        // Handle the success response
+                        alert(xhr.responseText); // Displays an alert with the response message
+                        updateObjectList(); // Updates the object list
+                        location.reload(); // Refresh the page
+                    }
+                }
+            };
+
+            // Sends a POST request to the specified URL with the form data
+            xhr.open('POST', '/upload/' + objectId);
+            xhr.send(formData);
+        }
     });
 });

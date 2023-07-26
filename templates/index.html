@@ -21,9 +21,6 @@
             <div class="mb-3">
                 <input type="text" class="form-control" id="name-input" placeholder="Name">
             </div>
-            <div class="mb-3">
-                <input type="file" id="file-input" name="file">
-            </div>
             <button type="submit" class="btn btn-primary">Create</button>
         </form>
         <table class="table mt-3">
@@ -42,10 +39,9 @@
                                 <input type="text" class="update-input form-control me-2" data-id="{{ obj[0] }}" placeholder="Update text">
                                 <button class="update-btn btn btn-primary me-2" data-id="{{ obj[0] }}">Update</button>
                                 <button class="delete-btn btn btn-danger" data-id="{{ obj[0] }}">Delete</button>
+                                <button class="upload-btn btn btn-success" data-id="{{ obj[0] }}">Upload File</button>
+                                <input type="file" class="form-control-file file-input" data-id="{{ obj[0] }}" name="file">
                             </div>
-                        </td>
-                        <td>
-                            <input type="file" class="form-control-file file-input" data-id="{{ obj[0] }}" name="file">
                         </td>
                     </tr>
                 {% endfor %}
