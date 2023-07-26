@@ -40,6 +40,7 @@ def index():
 @app.route('/add', methods=['POST'])
 def add_object():
     name = request.form['name']
+    print(request.files)
 
     # Check if the post request has the file part
     if 'file' in request.files:
@@ -60,6 +61,24 @@ def add_object():
     socketio.emit('object_created', {'id': cursor.lastrowid, 'name': name})
 
     return 'Object added successfully!'
+# Define a route to handle file uploads
+@app.route('/upload/<int:object_id>', methods=['POST'])
+def upload_file(object_id):
+    file = request.files['file']
+
+    # Check if the post request has the file part
+    if file:
+        # Secure the filename to prevent malicious filenames
+        filename = secure_filename(file.filename)
+        # Save the file to the server
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+        # Emit a socket event to notify clients about the successful file upload
+        socketio.emit('file_uploaded', {'id': object_id, 'filename': filename})
+
+        return 'File uploaded successfully!'
+
+    return 'No file selected for upload.'
 
 @app.route('/update/<int:object_id>', methods=['POST'])
 def update_object(object_id):
