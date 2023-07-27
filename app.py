@@ -40,7 +40,7 @@ def index():
 @app.route('/add', methods=['POST'])
 def add_object():
     name = request.form['name']
-    print(request.files)
+    filename = None  # Initialize filename to None
 
     # Check if the post request has the file part
     if 'file' in request.files:
@@ -49,19 +49,21 @@ def add_object():
             # Secure the filename to prevent malicious filenames
             filename = secure_filename(file.filename)
             # Save the file to the server
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
 
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
-    cursor.execute('INSERT INTO objects (name) VALUES (?)', (name,))
+    cursor.execute('INSERT INTO objects (name, filename) VALUES (?, ?)', (name, filename))  # Save the filename in the database
     conn.commit()
     conn.close()
 
     # Emit a socket event to notify clients about the newly created object
-    socketio.emit('object_created', {'id': cursor.lastrowid, 'name': name})
+    socketio.emit('object_created', {'id': cursor.lastrowid, 'name': name, 'filename': filename})
 
     return 'Object added successfully!'
-# Define a route to handle file uploads
+
+
 @app.route('/upload/<int:object_id>', methods=['POST'])
 def upload_file(object_id):
     file = request.files['file']
@@ -70,15 +72,24 @@ def upload_file(object_id):
     if file:
         # Secure the filename to prevent malicious filenames
         filename = secure_filename(file.filename)
-        # Save the file to the server
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        filename_without_extension = os.path.splitext(filename)[0]  # Get the filename without the extension
+        # Save the file to the server with the correct filename
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename_without_extension))
+
+        # Update the filename in the database for the existing object
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        cursor.execute('UPDATE objects SET filename=? WHERE id=?', (filename_without_extension, object_id))
+        conn.commit()
+        conn.close()
 
         # Emit a socket event to notify clients about the successful file upload
-        socketio.emit('file_uploaded', {'id': object_id, 'filename': filename})
+        socketio.emit('file_uploaded', {'id': object_id, 'filename': filename_without_extension})
 
         return 'File uploaded successfully!'
 
     return 'No file selected for upload.'
+
 
 @app.route('/update/<int:object_id>', methods=['POST'])
 def update_object(object_id):
@@ -100,10 +111,12 @@ def update_object(object_id):
 def delete_object(object_id):
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
-    cursor.execute('SELECT name FROM objects WHERE id=?', (object_id,))
+    cursor.execute('SELECT name, filename FROM objects WHERE id=?', (object_id,))
     row = cursor.fetchone()
+    print(f"Row: {row}")  # Add this print statement to check the value of the row variable
     if row:
-        name = row[0]
+        name, filename = row  # Extract the name and filename from the database
+        print(f"Name: {name}, Filename: {filename}")  # Add this print statement to check the values of name and filename
         cursor.execute('DELETE FROM objects WHERE id=?', (object_id,))
         conn.commit()
         conn.close()
@@ -112,14 +125,23 @@ def delete_object(object_id):
         socketio.emit('object_deleted', {'id': object_id, 'name': name})
 
         # Delete the associated file from the server
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], name)
-        if os.path.exists(file_path):
-            os.remove(file_path)
+        if filename is not None:
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                print(f"File '{filename}' deleted successfully.")
+            else:
+                print(f"File '{filename}' not found for deletion.")
+        else:
+            print("Filename is None, skipping deletion.")
 
         return jsonify({'message': 'Object deleted successfully'})
 
     conn.close()
     return jsonify({'message': 'Object not found'})
+
+
+
 
 # Utilizzo nel caso generale
 if __name__ == '__main__':
