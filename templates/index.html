@@ -21,12 +21,16 @@
             <div class="mb-3">
                 <input type="text" class="form-control" id="name-input" placeholder="Name">
             </div>
+            <div class="mb-3">
+                <input type="file" class="form-control-file" id="file-input" name="file">
+            </div>
             <button type="submit" class="btn btn-primary">Create</button>
         </form>
         <table class="table mt-3">
             <thead>
                 <tr>
                     <th>Object Name</th>
+                    <th>File Name</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -34,6 +38,7 @@
                 {% for obj in objects %}
                     <tr data-id="{{ obj[0] }}">
                         <td>{{ obj[1] }}</td>
+                        <td>{{ obj[2] }}</td>
                         <td>
                             <div class="d-flex align-items-center">
                                 <input type="text" class="update-input form-control me-2" data-id="{{ obj[0] }}" placeholder="Update text">
@@ -51,3 +56,4 @@
     </div>
 </body>
 </html>
+
