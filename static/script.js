@@ -6,9 +6,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Retrieves the value entered in the name input field
         var name = document.getElementById('name-input').value;
 
-        // Create a new FormData object to send the text data
+        // Retrieves the selected file from the file input field
+        var fileInput = document.getElementById('file-input');
+        var file = fileInput.files[0];
+
+        // Create a new FormData object to send the form data including the file
         var formData = new FormData();
         formData.append('name', name);
+        formData.append('file', file);
 
         // Creates a new XMLHttpRequest object
         var xhr = new XMLHttpRequest();
@@ -20,8 +25,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Executes when the server responds with a successful message
                     alert(xhr.responseText); // Displays an alert with the response message
                     document.getElementById('name-input').value = ''; // Clears the name input field
+                    fileInput.value = ''; // Clears the file input field
                     updateObjectList(); // Updates the object list
-                    location.reload(); // Refreshes the page
                 }
             }
         };
@@ -46,7 +51,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (xhr.status === 200) {
                         // Handle the success response
                         updateObjectList(); // Update the object list
-                        location.reload(); // Refresh the page
                     }
                 }
             };
@@ -69,7 +73,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (xhr.status === 200) {
                         // Handle the success response
                         updateObjectList(); // Update the object list
-                        location.reload(); // Refresh the page
                     }
                 }
             };
@@ -109,8 +112,8 @@ document.addEventListener('DOMContentLoaded', function() {
     socket.on('object_created', function(data) {
         // Update the UI with the newly created object
         var newRow = document.createElement('tr');
-        newRow.innerHTML = '<td>' + data.name + '</td><td>' +
-            '<div class="d-flex align-items-center">' +
+        newRow.innerHTML = '<td>' + data.name + '</td><td>' + data.filename + '</td>' +
+            '<td><div class="d-flex align-items-center">' +
             '<input type="text" class="update-input form-control me-2" data-id="' + data.id + '" placeholder="Update text">' +
             '<button class="update-btn btn btn-primary me-2" data-id="' + data.id + '">Update</button>' +
             '<button class="delete-btn btn btn-danger" data-id="' + data.id + '">Delete</button>' +
@@ -165,9 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (xhr.readyState === XMLHttpRequest.DONE) {
                     if (xhr.status === 200) {
                         // Handle the success response
-                        alert(xhr.responseText); // Displays an alert with the response message
                         updateObjectList(); // Updates the object list
-                        location.reload(); // Refresh the page
                     }
                 }
             };
