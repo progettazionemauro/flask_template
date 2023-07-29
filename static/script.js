@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Details button click event listener
+   // Details button click event listener
 document.addEventListener('click', function(event) {
     var target = event.target;
     if (target.classList.contains('details-btn')) {
@@ -74,18 +74,29 @@ document.addEventListener('click', function(event) {
                     // Handle the success response
                     var objectDetails = JSON.parse(xhr.responseText);
 
-                    // Show the details in an alert or a modal, or create a separate details view
-                    alert("Object ID: " + objectDetails.id + "\n" +
-                          "Object Name: " + objectDetails.name + "\n" +
-                          "File Name: " + objectDetails.filename + "\n" +
-                          "Date of Review: " + objectDetails.date_of_review);
+                    // Pass the object details to the function to navigate to the separate details view
+                    showObjectDetails(objectDetails);
                 }
             }
         };
-        xhr.open('GET', '/details/' + objectId); // Replace '/details/' with the appropriate route on your server
+        xhr.open('GET', '/details/' + objectId);
         xhr.send();
     }
 });
+
+// Function to navigate to the separate details view
+function showObjectDetails(objectDetails) {
+    // Build the URL to the details page with query parameters for object details
+    var detailsUrl = '/details_page?';
+    detailsUrl += 'id=' + encodeURIComponent(objectDetails.id);
+    detailsUrl += '&name=' + encodeURIComponent(objectDetails.name);
+    detailsUrl += '&filename=' + encodeURIComponent(objectDetails.filename);
+    detailsUrl += '&date_of_review=' + encodeURIComponent(objectDetails.date_of_review);
+
+    // Navigate to the details page
+    window.location.href = detailsUrl;
+}
+
 
     // Delete button click event listener
     document.addEventListener('click', function(event) {

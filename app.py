@@ -161,7 +161,17 @@ def get_object_details(object_id):
 
     return jsonify({'error': 'Object not found'})
 
+@app.route('/details_page')
+def object_details_page():
+    # Retrieve the object details from the query parameters
+    object_id = request.args.get('id')
+    object_name = request.args.get('name')
+    object_filename = request.args.get('filename')
+    object_date_of_review = request.args.get('date_of_review')
 
+    # Pass the object details as context variables to the 'details.html' template
+    return render_template('details.html', object_id=object_id, object_name=object_name,
+                           object_filename=object_filename, object_date_of_review=object_date_of_review)
 
 
 # Utilizzo nel caso generale
