@@ -3,6 +3,10 @@
 <head>
     <title>Object Details</title>
     <!-- Add any necessary CSS or JavaScript files here -->
+     <!-- FilePond CSS -->
+     <link href="https://unpkg.com/filepond/dist/filepond.min.css" rel="stylesheet">
+     <!-- FilePond Image Preview plugin CSS -->
+     <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css" rel="stylesheet">
 </head>
 <body>
     <h1>Object Details</h1>
@@ -16,5 +20,11 @@
     <a href="/">Back to Object List</a>
 
     <!-- Add any necessary JavaScript here if needed -->
+<!-- FilePond Image Preview plugin JavaScript -->
+<script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.js"></script>
+<!-- FilePond JavaScript -->
+<script src="https://unpkg.com/filepond/dist/filepond.min.js"></script>
+<!-- Your custom FilePond initialization script (script-pond.js) -->
+<script src="{{ url_for('static', filename='script-pond.js') }}"></script>
 </body>
 </html>
