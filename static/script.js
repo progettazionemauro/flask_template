@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
+    
     // Create button click event listener
     document.getElementById('object-form').addEventListener('submit', function(event) {
         event.preventDefault(); // Prevents the default form submission behavior

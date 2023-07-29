@@ -64,9 +64,10 @@ def add_object():
     return 'Object added successfully!'
 
 
-@app.route('/upload/<int:object_id>', methods=['POST'])
+@app.route('/upload/<int:object_id>', methods=['POST']) #questa è la route per effettuare l'upload del file
 def upload_file(object_id):
-    file = request.files['file']
+    if 'filepond' in request.files:
+        file = request.files['filepond']
 
     # Check if the post request has the file part
     if file:
@@ -91,7 +92,7 @@ def upload_file(object_id):
     return 'No file selected for upload.'
 
 
-@app.route('/update/<int:object_id>', methods=['POST'])
+@app.route('/update/<int:object_id>', methods=['POST']) # Questa è la route per effettuare l'update del testo
 def update_object(object_id):
     updated_data = request.get_json()
     name = updated_data['name']
