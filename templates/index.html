@@ -32,6 +32,7 @@
                     <th>Object Name</th>
                     <th>File Name</th>
                     <th>Action</th>
+                    <th>Details</th> <!-- New column for the button -->
                 </tr>
             </thead>
             <tbody id="object-list">
@@ -47,6 +48,9 @@
                                 <button class="upload-btn btn btn-success" data-id="{{ obj[0] }}">Upload File</button>
                                 <input type="file" class="form-control-file file-input" data-id="{{ obj[0] }}" name="file">
                             </div>
+                        </td>
+                        <td> <!-- Button column -->
+                            <button class="details-btn btn btn-info" data-id="{{ obj[0] }}">Details</button>
                         </td>
                     </tr>
                 {% endfor %}

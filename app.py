@@ -140,6 +140,27 @@ def delete_object(object_id):
     conn.close()
     return jsonify({'message': 'Object not found'})
 
+@app.route('/details/<int:object_id>', methods=['GET'])
+def get_object_details(object_id):
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM objects WHERE id=?', (object_id,))
+    object_details = cursor.fetchone()
+    conn.close()
+
+    if object_details:
+        # Assuming object_details contains (id, name, filename) from the database
+        object_data = {
+            'id': object_details[0],
+            'name': object_details[1],
+            'filename': object_details[2],
+            # Add additional data fields as needed (e.g., date of review)
+            'date_of_review': '2023-07-29'  # Replace this with the actual date of review from your database
+        }
+        return jsonify(object_data)
+
+    return jsonify({'error': 'Object not found'})
+
 
 
 

@@ -60,6 +60,33 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Details button click event listener
+document.addEventListener('click', function(event) {
+    var target = event.target;
+    if (target.classList.contains('details-btn')) {
+        var objectId = target.getAttribute('data-id');
+
+        // Fetch the details of the object using its ID
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    // Handle the success response
+                    var objectDetails = JSON.parse(xhr.responseText);
+
+                    // Show the details in an alert or a modal, or create a separate details view
+                    alert("Object ID: " + objectDetails.id + "\n" +
+                          "Object Name: " + objectDetails.name + "\n" +
+                          "File Name: " + objectDetails.filename + "\n" +
+                          "Date of Review: " + objectDetails.date_of_review);
+                }
+            }
+        };
+        xhr.open('GET', '/details/' + objectId); // Replace '/details/' with the appropriate route on your server
+        xhr.send();
+    }
+});
+
     // Delete button click event listener
     document.addEventListener('click', function(event) {
         var target = event.target;
