@@ -2,6 +2,17 @@
 <html>
 <head>
     <title>Object Details</title>
+    <script>
+        // Function to close the preview
+        function closePreview() {
+            // Clear the existing preview
+            previewContainer.innerHTML = '';
+
+            // Show the "Show Preview" button and hide the "Close Preview" button
+            showPreviewBtn.style.display = 'inline-block';
+            closePreviewBtn.style.display = 'none';
+        }
+    </script>
 </head>
 <body>
     <h1>Object Details</h1>
@@ -10,61 +21,53 @@
     <p><strong>File Name:</strong> {{ object_filename }}</p>
     <p><strong>Date of Review:</strong> {{ object_date_of_review }}</p>
 
-    <!-- Add the image preview container -->
-    <div id="image-preview-container"></div>
-
-    <!-- Add the PDF preview container -->
-    <div id="pdf-preview-container"></div>
-
-    <!-- Add the "Show Image Preview" button -->
-    <button onclick="showImagePreview()">Show Image Preview</button>
-
-    <!-- Add the "Show PDF Preview" button -->
-    <button onclick="showPdfPreview()">Show PDF Preview</button>
+    <!-- Add the "Close Preview" button (hidden by default) -->
+    <button id="close-preview-btn" onclick="closePreview()" style="display: none;">Close Preview</button>
 
     <!-- Add any additional content or design you want to show for the object details -->
 
+    <!-- Add the "Back to Object List" button -->
     <a href="/">Back to Object List</a>
+
+    <!-- Add the image preview container -->
+    <div id="preview-container"></div>
+
+    <!-- Add the "Show Preview" button -->
+    <button id="show-preview-btn" onclick="showPreview()">Show Preview</button>
 
     <!-- Add any necessary JavaScript here if needed -->
     <script>
-        // Function to display image preview
-        function showImagePreview() {
+        var previewContainer = document.getElementById('preview-container');
+        var showPreviewBtn = document.getElementById('show-preview-btn');
+        var closePreviewBtn = document.getElementById('close-preview-btn');
+
+        // Function to display image or PDF preview
+        function showPreview() {
             var fileExtension = "{{ object_filename.split('.').pop() }}".toLowerCase();
+
+            // Clear the existing preview
+            previewContainer.innerHTML = '';
 
             // Check if the file is an image (supported image types)
             if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
                 // Construct the image tag with the correct URL
-                var imgTag = '<img src="/uploads/' + "{{ object_filename }}" + '" alt="Preview">';
-
+                var imgTag = '<img src="/uploads/' + "{{ object_filename | safe }}" + '" alt="Preview">';
                 // Display the image preview
-                document.getElementById('image-preview-container').innerHTML = imgTag;
-            } else {
-                // File type not supported, show an error message
-                document.getElementById('image-preview-container').innerHTML = 'Preview not available for this file type.';
-            }
-        }
-
-        // Function to display PDF preview
-        function showPdfPreview() {
-            var fileExtension = "{{ object_filename.split('.').pop() }}".toLowerCase();
-
-            // Check if the file is a PDF
-            if (fileExtension === 'pdf') {
+                previewContainer.innerHTML = imgTag;
+            } else if (fileExtension === 'pdf') {
                 // Construct the iframe tag with the correct URL
-                var pdfTag = '<iframe src="/uploads/' + "{{ object_filename }}" + '" width="600" height="400" type="application/pdf"></iframe>';
-
+                var pdfTag = '<iframe src="/uploads/' + "{{ object_filename | safe }}" + '" width="600" height="400" type="application/pdf"></iframe>';
                 // Display the PDF preview
-                document.getElementById('pdf-preview-container').innerHTML = pdfTag;
+                previewContainer.innerHTML = pdfTag;
             } else {
                 // File type not supported, show an error message
-                document.getElementById('pdf-preview-container').innerHTML = 'Preview not available for this file type.';
+                previewContainer.innerHTML = 'Preview not available for this file type.';
             }
-        }
 
-        // Call the functions to initially hide the previews on page load
-        showImagePreview();
-        showPdfPreview();
+            // Show the "Close Preview" button and hide the "Show Preview" button
+            showPreviewBtn.style.display = 'none';
+            closePreviewBtn.style.display = 'inline-block';
+        }
     </script>
 </body>
 </html>
