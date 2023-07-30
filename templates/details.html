@@ -13,8 +13,14 @@
     <!-- Add the image preview container -->
     <div id="image-preview-container"></div>
 
+    <!-- Add the PDF preview container -->
+    <div id="pdf-preview-container"></div>
+
     <!-- Add the "Show Image Preview" button -->
     <button onclick="showImagePreview()">Show Image Preview</button>
+
+    <!-- Add the "Show PDF Preview" button -->
+    <button onclick="showPdfPreview()">Show PDF Preview</button>
 
     <!-- Add any additional content or design you want to show for the object details -->
 
@@ -39,8 +45,27 @@
             }
         }
 
-        // Call the function to initially hide the preview on page load
+        // Function to display PDF preview
+        function showPdfPreview() {
+            var fileExtension = "{{ object_filename.split('.').pop() }}".toLowerCase();
+
+            // Check if the file is a PDF
+            if (fileExtension === 'pdf') {
+                // Construct the iframe tag with the correct URL
+                var pdfTag = '<iframe src="/uploads/' + "{{ object_filename }}" + '" width="600" height="400" type="application/pdf"></iframe>';
+
+                // Display the PDF preview
+                document.getElementById('pdf-preview-container').innerHTML = pdfTag;
+            } else {
+                // File type not supported, show an error message
+                document.getElementById('pdf-preview-container').innerHTML = 'Preview not available for this file type.';
+            }
+        }
+
+        // Call the functions to initially hide the previews on page load
         showImagePreview();
+        showPdfPreview();
     </script>
 </body>
 </html>
+
