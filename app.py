@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 from flask_socketio import SocketIO, emit
 from dotenv import load_dotenv
 import sqlite3
@@ -71,20 +71,20 @@ def upload_file(object_id):
     # Check if the post request has the file part
     if file:
         # Secure the filename to prevent malicious filenames
+        # Secure the filename to prevent malicious filenames
         filename = secure_filename(file.filename)
-        filename_without_extension = os.path.splitext(filename)[0]  # Get the filename without the extension
         # Save the file to the server with the correct filename
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename_without_extension))
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
         # Update the filename in the database for the existing object
         conn = sqlite3.connect(DATABASE)
         cursor = conn.cursor()
-        cursor.execute('UPDATE objects SET filename=? WHERE id=?', (filename_without_extension, object_id))
+        cursor.execute('UPDATE objects SET filename=? WHERE id=?', (filename, object_id))  # Save the filename with extension
         conn.commit()
         conn.close()
 
         # Emit a socket event to notify clients about the successful file upload
-        socketio.emit('file_uploaded', {'id': object_id, 'filename': filename_without_extension})
+        socketio.emit('file_uploaded', {'id': object_id, 'filename': filename})
 
         return 'File uploaded successfully!'
 
@@ -173,6 +173,9 @@ def object_details_page():
     return render_template('details.html', object_id=object_id, object_name=object_name,
                            object_filename=object_filename, object_date_of_review=object_date_of_review)
 
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 # Utilizzo nel caso generale
 if __name__ == '__main__':

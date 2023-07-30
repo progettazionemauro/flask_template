@@ -2,11 +2,6 @@
 <html>
 <head>
     <title>Object Details</title>
-    <!-- Add any necessary CSS or JavaScript files here -->
-     <!-- FilePond CSS -->
-     <link href="https://unpkg.com/filepond/dist/filepond.min.css" rel="stylesheet">
-     <!-- FilePond Image Preview plugin CSS -->
-     <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css" rel="stylesheet">
 </head>
 <body>
     <h1>Object Details</h1>
@@ -15,16 +10,37 @@
     <p><strong>File Name:</strong> {{ object_filename }}</p>
     <p><strong>Date of Review:</strong> {{ object_date_of_review }}</p>
 
+    <!-- Add the image preview container -->
+    <div id="image-preview-container"></div>
+
+    <!-- Add the "Show Image Preview" button -->
+    <button onclick="showImagePreview()">Show Image Preview</button>
+
     <!-- Add any additional content or design you want to show for the object details -->
 
     <a href="/">Back to Object List</a>
 
     <!-- Add any necessary JavaScript here if needed -->
-<!-- FilePond Image Preview plugin JavaScript -->
-<script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.js"></script>
-<!-- FilePond JavaScript -->
-<script src="https://unpkg.com/filepond/dist/filepond.min.js"></script>
-<!-- Your custom FilePond initialization script (script-pond.js) -->
-<script src="{{ url_for('static', filename='script-pond.js') }}"></script>
+    <script>
+        // Function to display image preview
+        function showImagePreview() {
+            var fileExtension = "{{ object_filename.split('.').pop() }}".toLowerCase();
+
+            // Check if the file is an image (supported image types)
+            if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
+                // Construct the image tag with the correct URL
+                var imgTag = '<img src="/uploads/' + "{{ object_filename }}" + '" alt="Preview">';
+
+                // Display the image preview
+                document.getElementById('image-preview-container').innerHTML = imgTag;
+            } else {
+                // File type not supported, show an error message
+                document.getElementById('image-preview-container').innerHTML = 'Preview not available for this file type.';
+            }
+        }
+
+        // Call the function to initially hide the preview on page load
+        showImagePreview();
+    </script>
 </body>
 </html>
