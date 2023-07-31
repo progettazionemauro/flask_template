@@ -213,6 +213,9 @@ def uploaded_file(filename):
 # Login route
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('welcome'))  # Redirect to the 'welcome' page if the user is already logged in
+
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
