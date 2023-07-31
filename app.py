@@ -227,13 +227,18 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('login'))
+    return redirect(url_for('logout_landing_page'))
 
 # Create a welcome page (protected with @login_required)
 @app.route('/welcome')
 @login_required
 def welcome():
     return render_template('welcome.html')
+
+# Render the logout landing page
+@app.route('/logout-landing')
+def logout_landing_page():
+    return render_template('logout.html')
 
 
 # Utilizzo nel caso generale
