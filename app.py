@@ -58,6 +58,10 @@ def create_table():
 
 @app.route('/')
 def index():
+      # Check if the user is logged in
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))  # Redirect to the login page if not logged in
+    
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM objects')
@@ -215,7 +219,7 @@ def login():
         user = authenticate_user(username, password)
         if user:
             login_user(user)
-            return redirect(url_for('index'))
+            return redirect(url_for('welcome'))
     return render_template('login.html')
 
 # Logout route
@@ -224,6 +228,13 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
+# Create a welcome page (protected with @login_required)
+@app.route('/welcome')
+@login_required
+def welcome():
+    return render_template('welcome.html')
+
 
 # Utilizzo nel caso generale
 if __name__ == '__main__':

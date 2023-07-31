@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome</title>
+</head>
+<body>
+    <div>
+        <h1>Welcome, {{ current_user.username }}!</h1>
+        <!-- Your welcome page content goes here -->
+
+        <!-- Add a link to the main app (index.html) -->
+        <a href="{{ url_for('index') }}">Go to the App</a>
+    </div>
+</body>
+</html>
