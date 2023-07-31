@@ -39,6 +39,12 @@ def authenticate_user(username, password):
         return User(user_id=1)  # For simplicity, we assume a single user with ID 1
     return None
 
+@app.route('/hello-world')
+@login_required
+def hello_world():
+    return render_template('hello-world.html')
+
+
 # User loader function for Flask-Login
 @login_manager.user_loader
 def load_user(user_id):
