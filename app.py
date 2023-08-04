@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, url_for
+from flask_debugtoolbar import DebugToolbarExtension 
 from flask_socketio import SocketIO, emit
 from flask import flash
 from dotenv import load_dotenv
@@ -18,6 +19,7 @@ app.config['SECRET_KEY'] = 'your-secret-key'  # Replace with your own secret key
 
 # Configure the databases
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'  # Core database
+toolbar = DebugToolbarExtension(app)
 
 
 # Create the SQLAlchemy object
@@ -47,12 +49,20 @@ class User(UserMixin):
     def __init__(self, user_id):
         self.id = user_id
 
-# Replace this with your own user authentication logic
+# Helper function to authenticate user
 def authenticate_user(username, password):
-    # Add your user authentication logic here
-    # For demonstration purposes, we'll use a dummy username and password
-    if username == 'demo_user' and password == 'demo_password':
-        return User(user_id=1)  # For simplicity, we assume a single user with ID 1
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM new_user_registration WHERE username = ?', (username,))
+    user_data = cursor.fetchone()
+    conn.close()
+
+    if user_data and check_password_hash(user_data[2], password):  # Index 2 is for password_hash
+        user = User(user_data[0])  # Index 0 is for id
+        print("User authenticated:", user_data)
+        return user
+
+    print("Authentication failed:", username)
     return None
 
 @app.route('/test_user_registration')
@@ -86,7 +96,7 @@ def register():
         if existing_user:
             flash('Username already exists!', 'error')
             conn.close()
-            return redirect(url_for('register'))
+            return redirect(url_for('login'))
         
         # Insert new user
         password_hash = generate_password_hash(password)
@@ -101,15 +111,19 @@ def register():
 
 
 
-# User loader function for Flask-Login
 @login_manager.user_loader
 def load_user(user_id):
-    # Replace this with your code to load a user from the database or another data source
-    # For this example, we'll assume there's a dictionary of users where the user ID is the key
-    users = {
-        1: User(1)  # Dummy user with ID 1 for demonstration
-    }
-    return users.get(int(user_id))
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM new_user_registration WHERE id = ?', (user_id,))
+    user_data = cursor.fetchone()
+    conn.close()
+
+    if user_data:
+        user = User(user_data[0])  # Index 0 is for id
+        return user
+
+    return None
 
 def create_table():
     conn = sqlite3.connect(DATABASE)
@@ -284,8 +298,16 @@ def login():
         user = authenticate_user(username, password)
         if user:
             login_user(user)
-            return redirect(url_for('welcome'))
+            flash('Login successful', 'success')  # Display a success message
+            return redirect(url_for('welcome'))  # Redirect to the 'welcome' page upon successful login
+        else:
+            flash('Invalid username or password', 'error')  # Display an error message
+            print("Login failed:", username)
+
     return render_template('login.html')
+
+
+
 
 # Logout route
 @app.route('/logout')
