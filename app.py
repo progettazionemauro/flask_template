@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, url_for
 from flask_socketio import SocketIO, emit
+from flask import flash
 from dotenv import load_dotenv
 import sqlite3
 import os
@@ -9,7 +10,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_migrate import Migrate
-from werkzeug.security import generate_password_hash, check_password_hash
+
 
 
 app = Flask(__name__)
@@ -23,16 +24,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'  # Core database
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-class UserRegistration(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password_hash = db.Column(db.String(120), nullable=False)
-
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
 
 
 # Initialize the Flask-Login extension
@@ -80,25 +71,34 @@ def test_user_registration():
 def hello_world():
     return render_template('hello-world.html')
 
-# User Registration View
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         
-        existing_user = UserRegistration.query.filter_by(username=username).first()
+        # Check if username exists
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        cursor.execute('SELECT id FROM new_user_registration WHERE username = ?', (username,))
+        existing_user = cursor.fetchone()
+        
         if existing_user:
-            return "Username already exists!"
+            flash('Username already exists!', 'error')
+            conn.close()
+            return redirect(url_for('register'))
         
-        new_user = UserRegistration(username=username)
-        new_user.set_password(password)
-        db.session.add(new_user)
-        db.session.commit()
+        # Insert new user
+        password_hash = generate_password_hash(password)
+        cursor.execute('INSERT INTO new_user_registration (username, password_hash) VALUES (?, ?)', (username, password_hash))
+        conn.commit()
+        conn.close()
         
-        return "Registration successful!"
+        flash('Registration successful!', 'success')
+        return redirect(url_for('login'))  # Redirect to login page after registration
     
-    return render_template('register.html')  # Create a 'register.html' template for the registration form
+    return render_template('register.html')
+
 
 
 # User loader function for Flask-Login
