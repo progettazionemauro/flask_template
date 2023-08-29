@@ -1,0 +1,43 @@
+*** Starting uWSGI 2.0.22 (64bit) on [Tue Aug 29 11:12:02 2023] ***
+compiled with version: 9.4.0 on 29 August 2023 08:35:31
+os: Linux-5.15.0-79-generic #86~20.04.2-Ubuntu SMP Mon Jul 17 23:27:17 UTC 2023
+nodename: mauro-ThinkPad-L460
+machine: x86_64
+clock source: unix
+detected number of CPU cores: 4
+current working directory: /home/mauro/Scrivania/flask_server_2
+detected binary path: /home/mauro/Scrivania/flask_server_2/venv/bin/uwsgi
+!!! no internal routing support, rebuild with pcre support !!!
+your processes number limit is 29057
+your memory page size is 4096 bytes
+detected max file descriptor number: 8192
+lock engine: pthread robust mutexes
+thunder lock: disabled (you can enable it with --thunder-lock)
+uwsgi socket 0 bound to UNIX address /tmp/your_flask_app.sock  # Path to the uWSGI socket fd 3
+Python version: 3.8.10 (default, May 26 2023, 14:05:08)  [GCC 9.4.0]
+*** Python threads support is disabled. You can enable it with --enable-threads ***
+Python main interpreter initialized at 0x562d0e0537c0
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 364600 bytes (356 KB) for 4 cores
+*** Operational MODE: preforking ***
+unable to load app 0 (mountpoint='') (callable not found or import error)
+*** no app loaded. going in full dynamic mode ***
+*** uWSGI is running in multiple interpreter mode ***
+spawned uWSGI master process (pid: 68232)
+spawned uWSGI worker 1 (pid: 68234, cores: 1)
+spawned uWSGI worker 2 (pid: 68235, cores: 1)
+spawned uWSGI worker 3 (pid: 68236, cores: 1)
+spawned uWSGI worker 4 (pid: 68237, cores: 1)
+Tue Aug 29 11:18:49 2023 - *** PAUSE (press start to resume, if you do not have a joypad send SIGTSTP) ***
+Tue Aug 29 11:18:49 2023 - *** worker 1 suspended ***
+Tue Aug 29 11:18:49 2023 - *** worker 2 suspended ***
+Tue Aug 29 11:18:49 2023 - *** worker 3 suspended ***
+Tue Aug 29 11:18:49 2023 - *** worker 4 suspended ***
+SIGINT/SIGTERM received...killing workers...
+worker 1 buried after 1 seconds
+worker 2 buried after 1 seconds
+worker 3 buried after 1 seconds
+worker 4 buried after 1 seconds
+goodbye to uWSGI.
+VACUUM: unix socket /tmp/your_flask_app.sock  # Path to the uWSGI socket removed.

@@ -15,16 +15,29 @@
     </style>
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="nav-link" href="{{ url_for('hello_world') }}">Home</a>
+     
+        <div class="collapse navbar-collapse" id="navbarNav">
+           
+            <ul class="navbar-nav">
+              
+             
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                </li>
+              
+    
+                <!-- Add more menu items here -->
+            </ul>
+        </div>
+    </nav>
     
     <div class="container">
         
-        <h1>Create Object</h1>
-         <!-- Add the login link -->
-         <a href="{{ url_for('login') }}">Login</a>
-         <!-- Add the logout link -->
-        <a href="/logout">Logout</a>
-
-         
+        <h1>Inserisci il nome dell'oggetto</h1>
+      
+               
         <form id="object-form" method="POST" enctype="multipart/form-data">
             <div class="mb-3">
                 <input type="text" class="form-control" id="name-input" placeholder="Name">
