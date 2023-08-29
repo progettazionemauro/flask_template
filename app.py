@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, url_for
-from flask_debugtoolbar import DebugToolbarExtension 
+# from flask_debugtoolbar import DebugToolbarExtension 
 from flask_socketio import SocketIO, emit
 from flask import flash
 from dotenv import load_dotenv
@@ -19,7 +19,7 @@ app.config['SECRET_KEY'] = 'your-secret-key'  # Replace with your own secret key
 
 # Configure the databases
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'  # Core database
-toolbar = DebugToolbarExtension(app)
+# toolbar = DebugToolbarExtension(app)
 
 
 # Create the SQLAlchemy object
