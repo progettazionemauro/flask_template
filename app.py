@@ -333,7 +333,7 @@ if __name__ == '__main__':
     create_table()
 
     # Check if HTTPS configuration is enabled
-    use_https = False  # Set this flag based on your configuration
+    use_https = True  # Set this flag based on your configuration
 
     if use_https:
         context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
